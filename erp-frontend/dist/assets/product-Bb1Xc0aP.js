@@ -1,0 +1,1 @@
+import{s as r}from"./index-CFfR3MIG.js";const u=t=>r.get("/product/products",{params:t}),d=t=>r.post("/product/products",t),c=t=>r.put(`/product/products/${t.productID}`,t),s=t=>r.delete(`/product/products/${t}`);export{d as a,s as d,u as g,c as u};

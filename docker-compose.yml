@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: erp-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: erp2024
+      MYSQL_DATABASE: erp_db
+      TZ: Asia/Shanghai
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./erp-backend/src/main/resources/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    networks:
+      - erp-network
+
+  redis:
+    image: redis:7
+    container_name: erp-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - erp-network
+
+  backend:
+    build: ./erp-backend
+    container_name: erp-backend
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: erp_db
+      DB_USER: root
+      DB_PASSWORD: erp2024
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: erp-jwt-secret-key-2024-very-long-secret-key-for-security
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - erp-network
+
+  frontend:
+    build: ./erp-frontend
+    container_name: erp-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - erp-network
+
+volumes:
+  mysql_data:
+
+networks:
+  erp-network:
+    driver: bridge

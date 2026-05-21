@@ -1,0 +1,1 @@
+import{W as e}from"./WarehouseInventory-DY_vUPMT.js";import{i as o,d as r,k as t}from"./index-CFfR3MIG.js";import"./warehouse-DZxsdESf.js";import"./product-Bb1Xc0aP.js";const u=o({__name:"ProductInventory",setup(a){return(n,s)=>(t(),r(e,{"warehouse-id":2,"warehouse-name":"KCB-成品仓"}))}});export{u as default};

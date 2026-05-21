@@ -1,0 +1,18 @@
+# Cloudflare Pages 配置
+# 用于使用 wrangler CLI 部署
+
+name = "erp-system"
+compatibility_date = "2024-05-20"
+
+# 构建配置
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# 环境变量（可选）
+[vars]
+  NODE_VERSION = "20"
+  ENVIRONMENT = "production"
+
+# 路由重定向（通过 public/_redirects 实现）
+# 已在 public/_redirects 中配置
