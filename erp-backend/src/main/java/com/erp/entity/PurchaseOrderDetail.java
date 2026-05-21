@@ -13,12 +13,26 @@ public class PurchaseOrderDetail implements Serializable {
     private Integer detailID;
 
     private Integer poID;
-
-    private Integer productID;
+    
+    private Integer materialID;
+    
+    private String supplierProductCode;
+    
+    private String supplierProductName;
+    
+    private String ourMaterialCode;
+    
+    private String ourMaterialName;
 
     private BigDecimal quantity;
+    
+    private BigDecimal receivedQuantity;
+    
+    private BigDecimal remainingQuantity;
 
     private BigDecimal unitPrice;
 
     private BigDecimal amount;
+    
+    private String remark;
 }

@@ -15,10 +15,26 @@ public class SalesOrderDetail implements Serializable {
     private Integer orderID;
 
     private Integer productID;
+    
+    private String customerProductCode;
+    
+    private String customerProductName;
+    
+    private String ourProductCode;
+    
+    private String ourProductName;
 
     private BigDecimal quantity;
+    
+    private BigDecimal originalPrice;
 
     private BigDecimal unitPrice;
+    
+    private BigDecimal costPrice;
+    
+    private BigDecimal profit;
 
     private BigDecimal amount;
+    
+    private String remark;
 }

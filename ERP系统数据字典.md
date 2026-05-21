@@ -30,8 +30,8 @@
 | 采购管理 | supplier, material, material_supplier, purchase_order, purchase_order_detail, payable | 供应商、原材料、原材料供应商关联、采购订单、应付 |
 | 产品管理 | product | 产品信息 |
 | 生产管理 | production_plan, recipe | 生产计划、配方 |
-| 仓库管理 | warehouse, inventory, delivery_note, pick_note, return_note, transfer_note | 仓库、库存、单据 |
-| 财务管理 | expense | 报销管理 |
+| 仓库管理 | warehouse, inventory | 仓库、库存 |
+| 财务管理 | expense, receivable, payable | 应收、应付、报销管理 |
 
 ### 1.2 数据表关系图
 
@@ -40,23 +40,28 @@
                ├─> 站内消息 (message)
                ├─> 操作日志 (operation_log)
                └─> 报销 (expense)
-                       
+               
 客户表 (customer) ─┐
                    ├─> 报价单 (quotation)
                    │       └─> 报价单明细 (quotation_detail)
                    ├─> 销售订单 (sales_order)
                    │       └─> 销售订单明细 (sales_order_detail)
                    └─> 应收款 (receivable)
-                       
+               
 供应商表 (supplier) ─┐
                      ├─> 采购订单 (purchase_order)
                      │       └─> 采购订单明细 (purchase_order_detail)
-                     └─> 应付款 (payable)
-                       
+                     ├─> 应付款 (payable)
+                     └─> 原材料供应商关联 (material_supplier)
+               
 产品表 (product) ─┬─> 库存 (inventory)
                   ├─> 配方 (recipe)
                   └─> 各种订单明细
-                       
+               
+原材料表 (material) ─┬─> 库存 (inventory)
+                     ├─> 原材料供应商关联 (material_supplier)
+                     └─> 配方 (recipe)
+               
 仓库表 (warehouse) ─┐
                    └─> 库存 (inventory)
 ```
@@ -71,22 +76,23 @@
 | 2 | customer | 客户表 | ≤10,000 | CustomerID, CustomerCode |
 | 3 | supplier | 供应商表 | ≤5,000 | SupplierID, SupplierCode |
 | 4 | product | 产品表 | ≤10,000 | ProductID, ProductCode |
-| 5 | warehouse | 仓库表 | ≤50 | WarehouseID, WarehouseCode |
-| 6 | quotation | 报价单表 | ≤100,000 | QuotationID, QuotationNo |
-| 7 | quotation_detail | 报价单明细表 | ≤1,000,000 | DetailID, QuotationID |
-| 8 | sales_order | 销售订单表 | ≤100,000 | OrderID, OrderNo |
-| 9 | sales_order_detail | 销售订单明细表 | ≤1,000,000 | DetailID, OrderID |
-| 10 | purchase_order | 采购订单表 | ≤50,000 | POID, PONo |
-| 11 | purchase_order_detail | 采购订单明细表 | ≤500,000 | DetailID, POID |
-| 12 | production_plan | 生产计划表 | ≤50,000 | PlanID, PlanNo |
-| 13 | recipe | 配方表 | ≤10,000 | RecipeID |
-| 14 | material_supplier | 原材料供应商关联表 | ≤50,000 | ID, MaterialID, SupplierID |
-| 15 | inventory | 库存表 | ≤100,000 | InventoryID |
-| 16 | receivable | 应收款表 | ≤50,000 | ReceivableID |
-| 17 | payable | 应付款表 | ≤50,000 | PayableID |
-| 18 | expense | 报销表 | ≤100,000 | ExpenseID |
-| 19 | message | 站内消息表 | ≤1,000,000 | MessageID |
-| 20 | operation_log | 操作日志表 | ≤10,000,000 | LogID |
+| 5 | material | 原材料表 | ≤10,000 | MaterialID, MaterialCode |
+| 6 | warehouse | 仓库表 | ≤50 | WarehouseID, WarehouseCode |
+| 7 | quotation | 报价单表 | ≤100,000 | QuotationID, QuotationNo |
+| 8 | quotation_detail | 报价单明细表 | ≤1,000,000 | DetailID, QuotationID |
+| 9 | sales_order | 销售订单表 | ≤100,000 | OrderID, OrderNo |
+| 10 | sales_order_detail | 销售订单明细表 | ≤1,000,000 | DetailID, OrderID |
+| 11 | purchase_order | 采购订单表 | ≤50,000 | POID, PONo |
+| 12 | purchase_order_detail | 采购订单明细表 | ≤500,000 | DetailID, POID |
+| 13 | production_plan | 生产计划表 | ≤50,000 | PlanID, PlanNo |
+| 14 | recipe | 配方表 | ≤10,000 | RecipeID |
+| 15 | material_supplier | 原材料供应商关联表 | ≤50,000 | ID, MaterialID, SupplierID |
+| 16 | inventory | 库存表 | ≤100,000 | InventoryID |
+| 17 | receivable | 应收款表 | ≤50,000 | ReceivableID |
+| 18 | payable | 应付款表 | ≤50,000 | PayableID |
+| 19 | expense | 报销表 | ≤100,000 | ExpenseID |
+| 20 | message | 站内消息表 | ≤1,000,000 | MessageID |
+| 21 | operation_log | 操作日志表 | ≤10,000,000 | LogID |
 
 ---
 
@@ -127,20 +133,28 @@
 |------|--------|----------|------|---------|--------|------|
 | 1 | CustomerID | INT | - | 否 | AUTO_INCREMENT | 客户ID (主键) |
 | 2 | CustomerCode | VARCHAR | 50 | 否 | - | 客户编号 (唯一) |
-| 3 | CustomerName | VARCHAR | 200 | 否 | - | 客户名称 |
-| 4 | Contact | VARCHAR | 100 | 是 | NULL | 联系人 |
-| 5 | Phone | VARCHAR | 50 | 是 | NULL | 联系电话 |
-| 6 | Fax | VARCHAR | 50 | 是 | NULL | 传真 |
-| 7 | Email | VARCHAR | 100 | 是 | NULL | 电子邮箱 |
-| 8 | Address | VARCHAR | 500 | 是 | NULL | 地址 |
-| 9 | Status | INT | - | 否 | 1 | 状态 (0禁用/1启用) |
-| 10 | CreateDate | DATETIME | - | 否 | CURRENT_TIMESTAMP | 创建时间 |
-| 11 | UpdateDate | DATETIME | - | 是 | NULL | 更新时间 |
+| 3 | CustomerShortName | VARCHAR | 100 | 是 | NULL | 客户简称 |
+| 4 | CustomerName | VARCHAR | 200 | 否 | - | 客户名称 |
+| 5 | Province | VARCHAR | 50 | 是 | NULL | 省/地区 |
+| 6 | City | VARCHAR | 50 | 是 | NULL | 城市 |
+| 7 | DeliveryDays | INT | - | 否 | 0 | 交期天 |
+| 8 | PaymentDays | INT | - | 否 | 0 | 帐期天 |
+| 9 | CreditLimit | DECIMAL | 12,2 | 否 | 0.00 | 信用额度 |
+| 10 | UsedCredit | DECIMAL | 12,2 | 否 | 0.00 | 已用信用额度 |
+| 11 | Contact | VARCHAR | 100 | 是 | NULL | 联系人 |
+| 12 | Phone | VARCHAR | 50 | 是 | NULL | 联系电话 |
+| 13 | Fax | VARCHAR | 50 | 是 | NULL | 传真 |
+| 14 | Email | VARCHAR | 100 | 是 | NULL | 电子邮箱 |
+| 15 | Address | VARCHAR | 500 | 是 | NULL | 地址 |
+| 16 | Status | INT | - | 否 | 1 | 状态 (0禁用/1启用) |
+| 17 | CreateDate | DATETIME | - | 否 | CURRENT_TIMESTAMP | 创建时间 |
+| 18 | UpdateDate | DATETIME | - | 是 | NULL | 更新时间 |
 
 **索引**:
 - PRIMARY KEY: CustomerID
 - UNIQUE KEY: idx_code (CustomerCode)
 - KEY: idx_name (CustomerName)
+- KEY: idx_province (Province)
 - KEY: idx_customer_status (Status)
 
 ---
@@ -198,7 +212,33 @@
 
 ---
 
-### 5. 仓库表 (warehouse)
+### 5. 原材料表 (material)
+
+**说明**: 原材料基本信息表
+
+| 序号 | 字段名 | 数据类型 | 长度 | 允许NULL | 默认值 | 说明 |
+|------|--------|----------|------|---------|--------|------|
+| 1 | MaterialID | INT | - | 否 | AUTO_INCREMENT | 原材料ID (主键) |
+| 2 | MaterialCode | VARCHAR | 50 | 否 | - | 原材料编号 (唯一) |
+| 3 | MaterialName | VARCHAR | 200 | 否 | - | 原材料名称 |
+| 4 | Category | VARCHAR | 50 | 是 | NULL | 原材料类别 (material/other) |
+| 5 | Unit | VARCHAR | 20 | 是 | NULL | 单位 |
+| 6 | Spec | VARCHAR | 200 | 是 | NULL | 规格 |
+| 7 | Cost | DECIMAL | 12,2 | 否 | 0.00 | 成本单价 |
+| 8 | Status | INT | - | 否 | 1 | 状态 (0禁用/1启用) |
+| 9 | CreateDate | DATETIME | - | 否 | CURRENT_TIMESTAMP | 创建时间 |
+| 10 | UpdateDate | DATETIME | - | 是 | NULL | 更新时间 |
+
+**索引**:
+- PRIMARY KEY: MaterialID
+- UNIQUE KEY: idx_code (MaterialCode)
+- KEY: idx_name (MaterialName)
+- KEY: idx_category (Category)
+- KEY: idx_material_status (Status)
+
+---
+
+### 6. 仓库表 (warehouse)
 
 **说明**: 仓库信息表
 
@@ -230,7 +270,7 @@
 
 ---
 
-### 6. 报价单表 (quotation)
+### 7. 报价单表 (quotation)
 
 **说明**: 客户报价单主表
 
@@ -242,7 +282,7 @@
 | 4 | QuotationDate | DATETIME | - | 否 | - | 报价日期 |
 | 5 | ValidUntil | DATETIME | - | 是 | NULL | 有效期至 |
 | 6 | TotalAmount | DECIMAL | 12,2 | 否 | 0.00 | 报价总额 |
-| 7 | Status | VARCHAR | 20 | 否 | 'pending' | 状态 (pending待确认/accepted已接受/rejected已拒绝) |
+| 7 | Status | VARCHAR | 20 | 否 | 'unquoted' | 状态 (unquoted未报价/quoted已报价/confirmed已确认) |
 | 8 | Creator | VARCHAR | 50 | 是 | NULL | 制单人 |
 | 9 | CreateDate | DATETIME | - | 否 | CURRENT_TIMESTAMP | 创建时间 |
 | 10 | UpdateDate | DATETIME | - | 是 | NULL | 更新时间 |
@@ -256,7 +296,7 @@
 
 ---
 
-### 7. 报价单明细表 (quotation_detail)
+### 8. 报价单明细表 (quotation_detail)
 
 **说明**: 报价单产品明细表
 
@@ -265,9 +305,17 @@
 | 1 | DetailID | INT | - | 否 | AUTO_INCREMENT | 明细ID (主键) |
 | 2 | QuotationID | INT | - | 否 | - | 报价单ID (外键) |
 | 3 | ProductID | INT | - | 否 | - | 产品ID (外键) |
-| 4 | Quantity | DECIMAL | 12,2 | 否 | 0.00 | 数量 |
-| 5 | UnitPrice | DECIMAL | 12,2 | 否 | 0.00 | 单价 |
-| 6 | Amount | DECIMAL | 12,2 | 否 | 0.00 | 金额 |
+| 4 | CustomerProductCode | VARCHAR | 50 | 是 | NULL | 客产品代码 |
+| 5 | CustomerProductName | VARCHAR | 200 | 是 | NULL | 客产品名称 |
+| 6 | OurProductCode | VARCHAR | 50 | 是 | NULL | 工产品代码 |
+| 7 | OurProductName | VARCHAR | 200 | 是 | NULL | 工产品名称 |
+| 8 | Quantity | DECIMAL | 12,2 | 否 | 0.00 | 数量 |
+| 9 | OriginalPrice | DECIMAL | 12,2 | 否 | 0.00 | 折前价 |
+| 10 | UnitPrice | DECIMAL | 12,2 | 否 | 0.00 | 折后价 |
+| 11 | CostPrice | DECIMAL | 12,2 | 否 | 0.00 | 成本价 |
+| 12 | Amount | DECIMAL | 12,2 | 否 | 0.00 | 金额 |
+| 13 | Attachment | VARCHAR | 500 | 是 | NULL | 附图 |
+| 14 | Remark | VARCHAR | 500 | 是 | NULL | 备注 |
 
 **索引**:
 - PRIMARY KEY: DetailID
@@ -276,7 +324,7 @@
 
 ---
 
-### 8. 销售订单表 (sales_order)
+### 9. 销售订单表 (sales_order)
 
 **说明**: 销售订单主表
 
@@ -286,12 +334,16 @@
 | 2 | OrderNo | VARCHAR | 50 | 否 | - | 订单编号 (唯一) |
 | 3 | CustomerID | INT | - | 否 | - | 客户ID (外键) |
 | 4 | OrderDate | DATETIME | - | 否 | - | 订单日期 |
-| 5 | DeliveryDate | DATETIME | - | 是 | NULL | 交货日期 |
-| 6 | TotalAmount | DECIMAL | 12,2 | 否 | 0.00 | 订单总额 |
-| 7 | Status | VARCHAR | 20 | 否 | 'pending' | 状态 (pending已下单/producing生产中/shipped已发货/completed已完成) |
-| 8 | Creator | VARCHAR | 50 | 是 | NULL | 制单人 |
-| 9 | CreateDate | DATETIME | - | 否 | CURRENT_TIMESTAMP | 创建时间 |
-| 10 | UpdateDate | DATETIME | - | 是 | NULL | 更新时间 |
+| 5 | DeliveryDate | DATETIME | - | 是 | NULL | 交期 |
+| 6 | TotalQuantity | DECIMAL | 12,2 | 否 | 0.00 | 总数量 |
+| 7 | TotalAmount | DECIMAL | 12,2 | 否 | 0.00 | 折后价总额 |
+| 8 | TotalCost | DECIMAL | 12,2 | 否 | 0.00 | 总成本 |
+| 9 | TotalProfit | DECIMAL | 12,2 | 否 | 0.00 | 总利润 |
+| 10 | Remark | VARCHAR | 500 | 是 | NULL | 备注 |
+| 11 | Status | VARCHAR | 20 | 否 | 'pending' | 状态 (pending待审/unfinished未完成/inventory库存单/producing已排产/stocked已入库/shipped已发货/completed已完结) |
+| 12 | Creator | VARCHAR | 50 | 是 | NULL | 制单人 |
+| 13 | CreateDate | DATETIME | - | 否 | CURRENT_TIMESTAMP | 创建时间 |
+| 14 | UpdateDate | DATETIME | - | 是 | NULL | 更新时间 |
 
 **索引**:
 - PRIMARY KEY: OrderID
@@ -302,7 +354,7 @@
 
 ---
 
-### 9. 销售订单明细表 (sales_order_detail)
+### 10. 销售订单明细表 (sales_order_detail)
 
 **说明**: 销售订单产品明细表
 
@@ -311,9 +363,17 @@
 | 1 | DetailID | INT | - | 否 | AUTO_INCREMENT | 明细ID (主键) |
 | 2 | OrderID | INT | - | 否 | - | 订单ID (外键) |
 | 3 | ProductID | INT | - | 否 | - | 产品ID (外键) |
-| 4 | Quantity | DECIMAL | 12,2 | 否 | 0.00 | 数量 |
-| 5 | UnitPrice | DECIMAL | 12,2 | 否 | 0.00 | 单价 |
-| 6 | Amount | DECIMAL | 12,2 | 否 | 0.00 | 金额 |
+| 4 | CustomerProductCode | VARCHAR | 50 | 是 | NULL | 客产品代码 |
+| 5 | CustomerProductName | VARCHAR | 200 | 是 | NULL | 客产品名称 |
+| 6 | OurProductCode | VARCHAR | 50 | 是 | NULL | 工产品代码 |
+| 7 | OurProductName | VARCHAR | 200 | 是 | NULL | 工产品名称 |
+| 8 | Quantity | DECIMAL | 12,2 | 否 | 0.00 | 数量 |
+| 9 | OriginalPrice | DECIMAL | 12,2 | 否 | 0.00 | 折前价 |
+| 10 | UnitPrice | DECIMAL | 12,2 | 否 | 0.00 | 折后价 |
+| 11 | CostPrice | DECIMAL | 12,2 | 否 | 0.00 | 成本价 |
+| 12 | Profit | DECIMAL | 12,2 | 否 | 0.00 | 利润 |
+| 13 | Amount | DECIMAL | 12,2 | 否 | 0.00 | 金额 |
+| 14 | Remark | VARCHAR | 500 | 是 | NULL | 备注 |
 
 **索引**:
 - PRIMARY KEY: DetailID
@@ -322,7 +382,7 @@
 
 ---
 
-### 10. 采购订单表 (purchase_order)
+### 11. 采购订单表 (purchase_order)
 
 **说明**: 采购订单主表
 
@@ -331,13 +391,18 @@
 | 1 | POID | INT | - | 否 | AUTO_INCREMENT | 采购单ID (主键) |
 | 2 | PONo | VARCHAR | 50 | 否 | - | 采购单编号 (唯一) |
 | 3 | SupplierID | INT | - | 否 | - | 供应商ID (外键) |
-| 4 | OrderDate | DATETIME | - | 否 | - | 采购日期 |
-| 5 | DeliveryDate | DATETIME | - | 是 | NULL | 交货日期 |
-| 6 | TotalAmount | DECIMAL | 12,2 | 否 | 0.00 | 采购总额 |
-| 7 | Status | VARCHAR | 20 | 否 | 'pending' | 状态 (pending已下单/received已收货/completed已完成) |
-| 8 | Creator | VARCHAR | 50 | 是 | NULL | 制单人 |
-| 9 | CreateDate | DATETIME | - | 否 | CURRENT_TIMESTAMP | 创建时间 |
-| 10 | UpdateDate | DATETIME | - | 是 | NULL | 更新时间 |
+| 4 | OrderDate | DATETIME | - | 否 | - | 申请日期 |
+| 5 | RequestedDate | DATETIME | - | 是 | NULL | 要求入库日期 |
+| 6 | ReceivedDate | DATETIME | - | 是 | NULL | 收货入库日期 |
+| 7 | TotalQuantity | DECIMAL | 12,2 | 否 | 0.00 | 总订量 |
+| 8 | ReceivedQuantity | DECIMAL | 12,2 | 否 | 0.00 | 已入库数量 |
+| 9 | RemainingQuantity | DECIMAL | 12,2 | 否 | 0.00 | 剩余数量 |
+| 10 | TotalAmount | DECIMAL | 12,2 | 否 | 0.00 | 总金额 |
+| 11 | Remark | VARCHAR | 500 | 是 | NULL | 备注 |
+| 12 | Status | VARCHAR | 20 | 否 | 'pending' | 状态 (pending待审/approved已审/stocked已入库/cancelled作废单) |
+| 13 | Creator | VARCHAR | 50 | 是 | NULL | 制单人 |
+| 14 | CreateDate | DATETIME | - | 否 | CURRENT_TIMESTAMP | 创建时间 |
+| 15 | UpdateDate | DATETIME | - | 是 | NULL | 更新时间 |
 
 **索引**:
 - PRIMARY KEY: POID
@@ -348,7 +413,7 @@
 
 ---
 
-### 11. 采购订单明细表 (purchase_order_detail)
+### 12. 采购订单明细表 (purchase_order_detail)
 
 **说明**: 采购订单产品明细表
 
@@ -356,19 +421,26 @@
 |------|--------|----------|------|---------|--------|------|
 | 1 | DetailID | INT | - | 否 | AUTO_INCREMENT | 明细ID (主键) |
 | 2 | POID | INT | - | 否 | - | 采购单ID (外键) |
-| 3 | ProductID | INT | - | 否 | - | 产品ID (外键) |
-| 4 | Quantity | DECIMAL | 12,2 | 否 | 0.00 | 数量 |
-| 5 | UnitPrice | DECIMAL | 12,2 | 否 | 0.00 | 单价 |
-| 6 | Amount | DECIMAL | 12,2 | 否 | 0.00 | 金额 |
+| 3 | MaterialID | INT | - | 否 | - | 原材料ID (外键) |
+| 4 | SupplierProductCode | VARCHAR | 50 | 是 | NULL | 供应商产品代码 |
+| 5 | SupplierProductName | VARCHAR | 200 | 是 | NULL | 供应商产品名称 |
+| 6 | OurMaterialCode | VARCHAR | 50 | 是 | NULL | 我们的材料代码 |
+| 7 | OurMaterialName | VARCHAR | 200 | 是 | NULL | 我们的材料名称 |
+| 8 | Quantity | DECIMAL | 12,2 | 否 | 0.00 | 数量 |
+| 9 | ReceivedQuantity | DECIMAL | 12,2 | 否 | 0.00 | 已入库数量 |
+| 10 | RemainingQuantity | DECIMAL | 12,2 | 否 | 0.00 | 剩余数量 |
+| 11 | UnitPrice | DECIMAL | 12,2 | 否 | 0.00 | 单价 |
+| 12 | Amount | DECIMAL | 12,2 | 否 | 0.00 | 金额 |
+| 13 | Remark | VARCHAR | 500 | 是 | NULL | 备注 |
 
 **索引**:
 - PRIMARY KEY: DetailID
 - KEY: idx_po (POID)
-- KEY: idx_product (ProductID)
+- KEY: idx_material (MaterialID)
 
 ---
 
-### 12. 生产计划表 (production_plan)
+### 13. 生产计划表 (production_plan)
 
 **说明**: 生产计划主表
 
@@ -394,7 +466,7 @@
 
 ---
 
-### 13. 配方表 (recipe)
+### 14. 配方表 (recipe)
 
 **说明**: 产品配方表
 
@@ -415,7 +487,7 @@
 
 ---
 
-### 14. 原材料供应商关联表 (material_supplier)
+### 15. 原材料供应商关联表 (material_supplier)
 
 **说明**: 原材料与供应商的多对多关联表，记录每个供应商提供的原材料信息
 
@@ -439,7 +511,7 @@
 
 ---
 
-### 15. 库存表 (inventory)
+### 16. 库存表 (inventory)
 
 **说明**: 各仓库产品库存表
 
@@ -462,7 +534,7 @@
 
 ---
 
-### 16. 应收款表 (receivable)
+### 17. 应收款表 (receivable)
 
 **说明**: 客户应收款表
 
@@ -487,7 +559,7 @@
 
 ---
 
-### 17. 应付款表 (payable)
+### 18. 应付款表 (payable)
 
 **说明**: 供应商应付款表
 
@@ -512,7 +584,7 @@
 
 ---
 
-### 18. 报销表 (expense)
+### 19. 报销表 (expense)
 
 **说明**: 员工报销表
 
@@ -538,7 +610,7 @@
 
 ---
 
-### 19. 站内消息表 (message)
+### 20. 站内消息表 (message)
 
 **说明**: 用户间消息表
 
@@ -561,7 +633,7 @@
 
 ---
 
-### 20. 操作日志表 (operation_log)
+### 21. 操作日志表 (operation_log)
 
 **说明**: 系统操作审计日志
 
@@ -612,18 +684,22 @@
 |---------|--------|------|
 | 用户状态 | 0 | 禁用 |
 | | 1 | 启用 |
-| 客户/供应商/产品状态 | 0 | 禁用 |
+| 客户/供应商/产品/原材料状态 | 0 | 禁用 |
 | | 1 | 启用 |
-| 报价单状态 | pending | 待确认 |
-| | accepted | 已接受 |
-| | rejected | 已拒绝 |
-| 销售订单状态 | pending | 已下单 |
-| | producing | 生产中 |
+| 报价单状态 | unquoted | 未报价 |
+| | quoted | 已报价 |
+| | confirmed | 已确认 |
+| 销售订单状态 | pending | 待审 |
+| | unfinished | 未完成 |
+| | inventory | 库存单 |
+| | producing | 已排产 |
+| | stocked | 已入库 |
 | | shipped | 已发货 |
-| | completed | 已完成 |
-| 采购订单状态 | pending | 已下单 |
-| | received | 已收货 |
-| | completed | 已完成 |
+| | completed | 已完结 |
+| 采购订单状态 | pending | 待审 |
+| | approved | 已审 |
+| | stocked | 已入库 |
+| | cancelled | 作废单 |
 | 生产计划状态 | pending | 待生产 |
 | | producing | 生产中 |
 | | completed | 已完成 |

@@ -4,6 +4,13 @@ export interface Customer {
   customerID?: number
   customerCode: string
   customerName: string
+  customerShortName?: string
+  province?: string
+  city?: string
+  deliveryDays?: number
+  paymentDays?: number
+  creditLimit?: number
+  usedCredit?: number
   contact?: string
   phone?: string
   fax?: string
@@ -31,9 +38,17 @@ export interface QuotationDetail {
   productID: number
   productName?: string
   unit?: string
+  customerProductCode?: string
+  customerProductName?: string
+  ourProductCode?: string
+  ourProductName?: string
   quantity: number
+  originalPrice?: number
   unitPrice: number
+  costPrice?: number
   amount: number
+  attachment?: string
+  remark?: string
 }
 
 export interface QuotationRequest {
@@ -48,7 +63,11 @@ export interface SalesOrder {
   customerName?: string
   orderDate?: string
   deliveryDate?: string
+  totalQuantity?: number
   totalAmount: number
+  totalCost?: number
+  totalProfit?: number
+  remark?: string
   status: string
   creator?: string
   createDate?: string
@@ -58,9 +77,19 @@ export interface SalesOrderDetail {
   detailID?: number
   orderID?: number
   productID: number
+  productName?: string
+  unit?: string
+  customerProductCode?: string
+  customerProductName?: string
+  ourProductCode?: string
+  ourProductName?: string
   quantity: number
+  originalPrice?: number
   unitPrice: number
+  costPrice?: number
+  profit?: number
   amount: number
+  remark?: string
 }
 
 export interface SalesOrderRequest {

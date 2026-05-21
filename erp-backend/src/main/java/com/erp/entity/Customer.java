@@ -17,6 +17,20 @@ public class Customer implements Serializable {
     
     private String customerName;
     
+    private String customerShortName;
+    
+    private String province;
+    
+    private String city;
+    
+    private Integer deliveryDays;
+    
+    private Integer paymentDays;
+    
+    private BigDecimal creditLimit;
+    
+    private BigDecimal usedCredit;
+    
     private String contact;
     
     private String phone;

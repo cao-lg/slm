@@ -18,31 +18,48 @@ export interface PurchaseOrder {
   supplierID: number;
   supplierName?: string;
   orderDate?: string;
+  requestedDate?: string;
+  receivedDate?: string;
   deliveryDate?: string;
+  totalQuantity?: number;
+  receivedQuantity?: number;
+  remainingQuantity?: number;
   totalAmount: number;
+  remark?: string;
   status: string;
   creator?: string;
+  createDate?: string;
 }
 
 export interface PurchaseOrderDetail {
   detailID?: number;
   poID: number;
-  productID: number;
+  materialID: number;
+  materialName?: string;
+  unit?: string;
+  supplierProductCode?: string;
+  supplierProductName?: string;
+  ourMaterialCode?: string;
+  ourMaterialName?: string;
   quantity: number;
+  receivedQuantity?: number;
+  remainingQuantity?: number;
   unitPrice: number;
   amount: number;
+  remark?: string;
 }
 
 export interface Material {
   materialID?: number;
   materialCode: string;
   materialName: string;
-  spec?: string;
-  unit: string;
   category?: string;
-  stockQuantity?: number;
-  unitPrice: number;
+  unit?: string;
+  spec?: string;
+  cost?: number;
   status?: number;
+  createDate?: string;
+  updateDate?: string;
   suppliers?: MaterialSupplier[];
 }
 
@@ -56,6 +73,8 @@ export interface MaterialSupplier {
   supplierProductName?: string;
   purchasePrice: number;
   status?: number;
+  createDate?: string;
+  updateDate?: string;
 }
 
 export interface PageParams {

@@ -18,10 +18,22 @@ public class PurchaseOrder implements Serializable {
     private Integer supplierID;
 
     private LocalDateTime orderDate;
+    
+    private LocalDateTime requestedDate;
+    
+    private LocalDateTime receivedDate;
 
     private LocalDateTime deliveryDate;
+    
+    private BigDecimal totalQuantity;
+    
+    private BigDecimal receivedQuantity;
+    
+    private BigDecimal remainingQuantity;
 
     private BigDecimal totalAmount;
+    
+    private String remark;
 
     private String status;
 

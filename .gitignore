@@ -50,3 +50,10 @@ pnpm-debug.log*
 .git/
 .gitignore
 README.md
+
+# 临时文件和调研图片
+*.png
+*.html
+data_reinvestigation/
+*.py
+*.json

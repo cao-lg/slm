@@ -15,10 +15,26 @@ public class QuotationDetail implements Serializable {
     private Integer quotationID;
 
     private Integer productID;
+    
+    private String customerProductCode;
+    
+    private String customerProductName;
+    
+    private String ourProductCode;
+    
+    private String ourProductName;
 
     private BigDecimal quantity;
+    
+    private BigDecimal originalPrice;
 
     private BigDecimal unitPrice;
+    
+    private BigDecimal costPrice;
 
     private BigDecimal amount;
+    
+    private String attachment;
+    
+    private String remark;
 }

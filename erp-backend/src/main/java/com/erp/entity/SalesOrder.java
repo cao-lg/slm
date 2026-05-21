@@ -20,8 +20,16 @@ public class SalesOrder implements Serializable {
     private LocalDateTime orderDate;
 
     private LocalDateTime deliveryDate;
-
+    
+    private BigDecimal totalQuantity;
+    
     private BigDecimal totalAmount;
+    
+    private BigDecimal totalCost;
+    
+    private BigDecimal totalProfit;
+    
+    private String remark;
 
     private String status;
 
