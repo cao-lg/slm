@@ -80,17 +80,6 @@ const DEFAULT_DATA: DataStore = {
       totalAmount: 8000.00,
       status: 'pending',
       creator: '陈立国'
-    },
-    {
-      quotationID: 3,
-      quotationNo: 'BJ202505200003',
-      customerID: 3,
-      customerName: '广州电子科技',
-      quotationDate: '2025-05-15',
-      validUntil: '2025-06-15',
-      totalAmount: 12000.00,
-      status: 'rejected',
-      creator: '陈立国'
     }
   ],
   salesOrders: [
@@ -102,7 +91,7 @@ const DEFAULT_DATA: DataStore = {
       orderDate: '2025-05-20',
       deliveryDate: '2025-05-30',
       totalAmount: 5000.00,
-      status: 'approved',
+      status: 'pending',
       creator: '陈立国'
     },
     {
@@ -219,17 +208,6 @@ const DEFAULT_DATA: DataStore = {
       deliveryDate: '2025-05-28',
       totalAmount: 8000.00,
       status: 'pending',
-      creator: '陈立国'
-    },
-    {
-      poID: 3,
-      poNo: 'CG202505200003',
-      supplierID: 1,
-      supplierName: '深圳材料厂',
-      orderDate: '2025-05-15',
-      deliveryDate: '2025-05-25',
-      totalAmount: 12000.00,
-      status: 'received',
       creator: '陈立国'
     }
   ],
@@ -415,11 +393,11 @@ const DEFAULT_DATA: DataStore = {
   receipts: [],
   nextIds: {
     customerID: 4,
-    quotationID: 4,
+    quotationID: 3,
     orderID: 4,
     productID: 4,
     supplierID: 4,
-    poID: 4,
+    poID: 3,
     materialID: 5,
     planId: 4,
     receivableID: 4,
