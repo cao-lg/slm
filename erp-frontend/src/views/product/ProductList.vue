@@ -13,6 +13,14 @@
         <el-form-item label="产品名称">
           <el-input v-model="searchForm.productName" placeholder="请输入产品名称" clearable />
         </el-form-item>
+        <el-form-item label="产品类别">
+          <el-select v-model="searchForm.category" placeholder="请选择产品类别" clearable style="width: 180px">
+            <el-option label="原材料" value="原材料" />
+            <el-option label="半成品" value="半成品" />
+            <el-option label="成品" value="成品" />
+            <el-option label="配件" value="配件" />
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleSearch">搜索</el-button>
           <el-button @click="handleReset">重置</el-button>
@@ -138,7 +146,8 @@ const dialogTitle = ref('');
 const formRef = ref();
 
 const searchForm = reactive({
-  productName: ''
+  productName: '',
+  category: ''
 });
 
 const pagination = reactive({
@@ -159,7 +168,10 @@ const formData = reactive<Product>({
 });
 
 const formRules = {
-  productName: [{ required: true, message: '请输入产品名称', trigger: 'blur' }]
+  productName: [{ required: true, message: '请输入产品名称', trigger: 'blur' }],
+  category: [{ required: true, message: '请输入产品类别', trigger: 'blur' }],
+  unit: [{ required: true, message: '请输入产品单位', trigger: 'blur' }],
+  price: [{ required: true, message: '请输入产品售价', trigger: 'blur' }]
 };
 
 const fetchData = async () => {
@@ -187,6 +199,7 @@ const handleSearch = () => {
 
 const handleReset = () => {
   searchForm.productName = '';
+  searchForm.category = '';
   handleSearch();
 };
 

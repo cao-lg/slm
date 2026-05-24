@@ -27,6 +27,16 @@
               ¥{{ order.totalAmount?.toFixed(2) }}
             </span>
           </el-descriptions-item>
+          <el-descriptions-item label="总成本">
+            <span style="font-weight: bold; color: #409eff">
+              ¥{{ order.totalCost?.toFixed(2) }}
+            </span>
+          </el-descriptions-item>
+          <el-descriptions-item label="总利润">
+            <span style="font-weight: bold; color: #67c23a">
+              ¥{{ order.totalProfit?.toFixed(2) }}
+            </span>
+          </el-descriptions-item>
           <el-descriptions-item label="状态">
             <el-tag :type="getStatusType(order.status)">
               {{ getStatusText(order.status) }}
@@ -47,6 +57,16 @@
                 ¥{{ row.unitPrice?.toFixed(2) }}
               </template>
             </el-table-column>
+            <el-table-column prop="costPrice" label="成本价">
+              <template #default="{ row }">
+                ¥{{ row.costPrice?.toFixed(2) }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="profit" label="利润">
+              <template #default="{ row }">
+                ¥{{ row.profit?.toFixed(2) }}
+              </template>
+            </el-table-column>
             <el-table-column prop="amount" label="金额">
               <template #default="{ row }">
                 ¥{{ row.amount?.toFixed(2) }}
@@ -63,13 +83,14 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { getSalesOrder, getSalesOrderDetails, type SalesOrder, type SalesOrderDetail } from '@/api/sales'
 
 const router = useRouter()
 const route = useRoute()
 
 const loading = ref(false)
-const order = ref<any>(null)
-const details = ref<any[]>([])
+const order = ref<SalesOrder | null>(null)
+const details = ref<SalesOrderDetail[]>([])
 
 const getStatusType = (status: string) => {
   const typeMap: Record<string, any> = {
@@ -100,29 +121,12 @@ const goBack = () => {
 const loadData = async () => {
   loading.value = true
   try {
-    const orderId = route.params.id
-    order.value = {
-      orderID: orderId,
-      orderNo: `XS2025052000${orderId}`,
-      customerID: 1,
-      customerName: '北京科技有限公司',
-      orderDate: '2025-05-20',
-      deliveryDate: '2025-05-30',
-      totalAmount: 5000,
-      status: 'approved',
-      creator: '陈立国'
-    }
-    details.value = [
-      {
-        detailID: 1,
-        orderID: orderId,
-        productID: 1,
-        productName: 'A型配件',
-        quantity: 50,
-        unitPrice: 100,
-        amount: 5000
-      }
-    ]
+    const orderId = Number(route.params.id)
+    const orderRes = await getSalesOrder(orderId)
+    order.value = orderRes.data
+    
+    const detailsRes = await getSalesOrderDetails(orderId)
+    details.value = detailsRes.data
   } catch (error) {
     ElMessage.error('加载详情失败')
   } finally {

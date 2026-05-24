@@ -50,12 +50,13 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { getProduct, Product } from '@/api/product'
 
 const router = useRouter()
 const route = useRoute()
 
 const loading = ref(false)
-const product = ref<any>(null)
+const product = ref<Product | null>(null)
 
 const goBack = () => {
   router.back()
@@ -64,18 +65,9 @@ const goBack = () => {
 const loadData = async () => {
   loading.value = true
   try {
-    const productId = route.params.id
-    product.value = {
-      productID: productId,
-      productCode: `CP2025052000${productId}`,
-      productName: 'A型配件',
-      category: '配件',
-      unit: '个',
-      spec: '直径10mm',
-      price: 100,
-      cost: 50,
-      status: 1
-    }
+    const productId = Number(route.params.id)
+    const response = await getProduct(productId)
+    product.value = response.data
   } catch (error) {
     ElMessage.error('加载详情失败')
   } finally {

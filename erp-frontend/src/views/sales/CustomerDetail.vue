@@ -16,20 +16,45 @@
           <el-descriptions-item label="客户名称">
             {{ customer.customerName }}
           </el-descriptions-item>
-          <el-descriptions-item label="联系人">
-            {{ customer.contact }}
+          <el-descriptions-item label="客户简称">
+            {{ customer.customerShortName || '-' }}
           </el-descriptions-item>
-          <el-descriptions-item label="电话">
-            {{ customer.phone }}
+          <el-descriptions-item label="省份">
+            {{ customer.province || '-' }}
           </el-descriptions-item>
-          <el-descriptions-item label="传真">
-            {{ customer.fax }}
-          </el-descriptions-item>
-          <el-descriptions-item label="邮箱">
-            {{ customer.email }}
+          <el-descriptions-item label="城市">
+            {{ customer.city || '-' }}
           </el-descriptions-item>
           <el-descriptions-item label="地址">
-            {{ customer.address }}
+            {{ customer.address || '-' }}
+          </el-descriptions-item>
+          <el-descriptions-item label="联系人">
+            {{ customer.contact || '-' }}
+          </el-descriptions-item>
+          <el-descriptions-item label="电话">
+            {{ customer.phone || '-' }}
+          </el-descriptions-item>
+          <el-descriptions-item label="传真">
+            {{ customer.fax || '-' }}
+          </el-descriptions-item>
+          <el-descriptions-item label="邮箱">
+            {{ customer.email || '-' }}
+          </el-descriptions-item>
+          <el-descriptions-item label="发货天数">
+            {{ customer.deliveryDays ?? '-' }}
+          </el-descriptions-item>
+          <el-descriptions-item label="付款天数">
+            {{ customer.paymentDays ?? '-' }}
+          </el-descriptions-item>
+          <el-descriptions-item label="信用额度">
+            <span style="color: #409eff; font-weight: bold">
+              ¥{{ customer.creditLimit?.toFixed(2) || '0.00' }}
+            </span>
+          </el-descriptions-item>
+          <el-descriptions-item label="已用信用">
+            <span style="color: #e6a23c; font-weight: bold">
+              ¥{{ customer.usedCredit?.toFixed(2) || '0.00' }}
+            </span>
           </el-descriptions-item>
           <el-descriptions-item label="状态">
             <el-tag :type="customer.status === 1 ? 'success' : 'danger'">
@@ -46,12 +71,13 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { getCustomer, Customer } from '@/api/sales'
 
 const router = useRouter()
 const route = useRoute()
 
 const loading = ref(false)
-const customer = ref<any>(null)
+const customer = ref<Customer | null>(null)
 
 const goBack = () => {
   router.back()
@@ -60,18 +86,9 @@ const goBack = () => {
 const loadData = async () => {
   loading.value = true
   try {
-    const customerId = route.params.id
-    customer.value = {
-      customerID: customerId,
-      customerCode: `KH2025052000${customerId}`,
-      customerName: '北京科技有限公司',
-      contact: '张三',
-      phone: '13800138001',
-      fax: '010-66666666',
-      email: 'zhang@tech.com',
-      address: '北京市朝阳区望京',
-      status: 1
-    }
+    const customerId = Number(route.params.id)
+    const response = await getCustomer(customerId)
+    customer.value = response.data
   } catch (error) {
     ElMessage.error('加载详情失败')
   } finally {

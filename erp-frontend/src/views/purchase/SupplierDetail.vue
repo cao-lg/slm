@@ -46,12 +46,13 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { getSupplier, Supplier } from '@/api/purchase'
 
 const router = useRouter()
 const route = useRoute()
 
 const loading = ref(false)
-const supplier = ref<any>(null)
+const supplier = ref<Supplier | null>(null)
 
 const goBack = () => {
   router.back()
@@ -60,18 +61,9 @@ const goBack = () => {
 const loadData = async () => {
   loading.value = true
   try {
-    const supplierId = route.params.id
-    supplier.value = {
-      supplierID: supplierId,
-      supplierCode: `GYS2025052000${supplierId}`,
-      supplierName: '深圳材料厂',
-      contact: '赵六',
-      phone: '13900139001',
-      fax: '0755-88888888',
-      email: 'zhao@factory.com',
-      address: '深圳市南山区',
-      status: 1
-    }
+    const supplierId = Number(route.params.id)
+    const response = await getSupplier(supplierId)
+    supplier.value = response.data
   } catch (error) {
     ElMessage.error('加载详情失败')
   } finally {

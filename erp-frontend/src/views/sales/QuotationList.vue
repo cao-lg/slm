@@ -429,8 +429,6 @@ const handleConvertToOrder = async (row: Quotation) => {
     const res = await convertQuotationToOrder(row.quotationID!)
     ElMessage.success('已成功转为销售订单')
     
-    await updateQuotationStatus(row.quotationID!, 'converted')
-    
     router.push({
       path: '/sales/order',
       query: { 

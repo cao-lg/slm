@@ -144,7 +144,12 @@
       title="付款核销"
       width="500px"
     >
-      <el-form :model="verifyForm" label-width="100px">
+      <el-form
+        ref="verifyFormRef"
+        :model="verifyForm"
+        :rules="verifyRules"
+        label-width="100px"
+      >
         <el-form-item label="应付单号">
           <el-input v-model="verifyForm.payableNo" readonly />
         </el-form-item>
@@ -168,6 +173,23 @@
         </el-form-item>
         <el-form-item label="本次付款" prop="amount">
           <el-input-number v-model="verifyForm.amount" :min="0" :max="verifyForm.pendingAmount" :precision="2" style="width: 100%" />
+        </el-form-item>
+        <el-form-item label="付款日期" prop="paymentDate">
+          <el-date-picker
+            v-model="verifyForm.paymentDate"
+            type="date"
+            placeholder="选择付款日期"
+            value-format="YYYY-MM-DD"
+            style="width: 100%"
+          />
+        </el-form-item>
+        <el-form-item label="付款方式" prop="paymentMethod">
+          <el-select v-model="verifyForm.paymentMethod" placeholder="选择付款方式" style="width: 100%">
+            <el-option label="银行转账" value="transfer" />
+            <el-option label="现金" value="cash" />
+            <el-option label="支票" value="check" />
+            <el-option label="商业汇票" value="commercial" />
+          </el-select>
         </el-form-item>
         <el-form-item label="备注">
           <el-input v-model="verifyForm.remark" type="textarea" :rows="2" />
@@ -230,6 +252,7 @@ const viewDialogVisible = ref(false)
 const isEdit = ref(false)
 const dialogTitle = ref('')
 const formRef = ref()
+const verifyFormRef = ref()
 const currentRow = ref<Payable | null>(null)
 
 const searchForm = reactive({
@@ -268,12 +291,35 @@ const verifyForm = reactive({
   paidAmount: 0,
   pendingAmount: 0,
   amount: 0,
+  paymentDate: '',
+  paymentMethod: 'transfer',
   remark: ''
 })
 
 const formRules = {
   supplierID: [{ required: true, message: '请选择供应商', trigger: 'change' }],
   totalAmount: [{ required: true, message: '请输入应付金额', trigger: 'blur' }]
+}
+
+const verifyRules = {
+  amount: [
+    { required: true, message: '请输入付款金额', trigger: 'blur' },
+    { validator: (rule: any, value: any, callback: any) => {
+      if (value <= 0) {
+        callback(new Error('付款金额必须大于0'))
+      } else if (value > verifyForm.pendingAmount) {
+        callback(new Error('付款金额不能超过欠款金额'))
+      } else {
+        callback()
+      }
+    }, trigger: 'blur' }
+  ],
+  paymentDate: [
+    { required: true, message: '请选择付款日期', trigger: 'change' }
+  ],
+  paymentMethod: [
+    { required: true, message: '请选择付款方式', trigger: 'change' }
+  ]
 }
 
 const getStatusType = (status: string) => {
@@ -371,18 +417,23 @@ const handleVerify = (row: Payable) => {
   verifyForm.paidAmount = row.paidAmount
   verifyForm.pendingAmount = row.pendingAmount
   verifyForm.amount = row.pendingAmount
+  verifyForm.paymentDate = new Date().toISOString().split('T')[0]
+  verifyForm.paymentMethod = 'transfer'
   verifyForm.remark = ''
   verifyDialogVisible.value = true
 }
 
 const handleVerifySubmit = async () => {
-  if (verifyForm.amount <= 0) {
-    ElMessage.error('请输入付款金额')
-    return
-  }
+  await verifyFormRef.value?.validate()
   
   try {
-    await verifyPayable(verifyForm.payableID!, verifyForm.amount, verifyForm.remark)
+    await verifyPayable(
+      verifyForm.payableID!, 
+      verifyForm.amount, 
+      verifyForm.paymentDate, 
+      verifyForm.paymentMethod, 
+      verifyForm.remark
+    )
     ElMessage.success('核销成功')
     verifyDialogVisible.value = false
     fetchData()

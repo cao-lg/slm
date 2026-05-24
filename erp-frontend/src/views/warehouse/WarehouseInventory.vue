@@ -4,7 +4,15 @@
       <template #header>
         <div class="card-header">
           <span>{{ warehouseName }} - 库存管理</span>
-          <div>
+          <div style="display: flex; gap: 10px; align-items: center">
+            <el-alert
+              v-if="lowStockCount > 0"
+              :title="`${lowStockCount} 个产品库存预警！`"
+              type="warning"
+              :closable="false"
+              show-icon
+              style="margin-right: 10px"
+            />
             <el-button type="primary" @click="handleIn">入库</el-button>
             <el-button type="warning" @click="handleOut">出库</el-button>
           </div>
@@ -26,7 +34,14 @@
         <el-table-column prop="productName" label="产品名称" width="200" />
         <el-table-column prop="spec" label="规格" width="120" />
         <el-table-column prop="unit" label="单位" width="80" />
-        <el-table-column prop="quantity" label="库存数量" width="120" />
+        <el-table-column prop="quantity" label="库存数量" width="120">
+          <template #default="{ row }">
+            <span :style="{ color: row.quantity <= 10 ? '#f56c6c' : 'inherit', fontWeight: row.quantity <= 10 ? 'bold' : 'normal' }">
+              {{ row.quantity }}
+              <el-tag v-if="row.quantity <= 10" size="small" type="danger" style="margin-left: 5px">预警</el-tag>
+            </span>
+          </template>
+        </el-table-column>
         <el-table-column prop="unitCost" label="单位成本" width="120">
           <template #default="{ row }">
             ¥{{ row.unitCost?.toFixed(2) }}
@@ -101,7 +116,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
   getWarehouseInventory,
@@ -145,6 +160,10 @@ const inFormData = reactive({
 const outFormData = reactive({
   productID: 0 as number,
   quantity: 0 as number
+})
+
+const lowStockCount = computed(() => {
+  return tableData.value.filter(item => item.quantity <= 10).length
 })
 
 const formRules = {

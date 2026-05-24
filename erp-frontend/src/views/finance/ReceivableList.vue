@@ -144,7 +144,12 @@
       title="收款核销"
       width="500px"
     >
-      <el-form :model="verifyForm" label-width="100px">
+      <el-form
+        ref="verifyFormRef"
+        :model="verifyForm"
+        :rules="verifyRules"
+        label-width="100px"
+      >
         <el-form-item label="应收单号">
           <el-input v-model="verifyForm.receivableNo" readonly />
         </el-form-item>
@@ -174,6 +179,7 @@
             v-model="verifyForm.paymentDate"
             type="date"
             placeholder="选择日期"
+            value-format="YYYY-MM-DD"
             style="width: 100%"
           />
         </el-form-item>
@@ -245,6 +251,7 @@ const viewDialogVisible = ref(false)
 const isEdit = ref(false)
 const dialogTitle = ref('')
 const formRef = ref()
+const verifyFormRef = ref()
 const currentRow = ref<Receivable | null>(null)
 
 const searchForm = reactive({
@@ -290,6 +297,21 @@ const verifyForm = reactive({
 const formRules = {
   customerID: [{ required: true, message: '请选择客户', trigger: 'change' }],
   totalAmount: [{ required: true, message: '请输入应收金额', trigger: 'blur' }]
+}
+
+const verifyRules = {
+  amount: [
+    { required: true, message: '请输入收款金额', trigger: 'blur' },
+    { validator: (rule: any, value: any, callback: any) => {
+      if (value <= 0) {
+        callback(new Error('收款金额必须大于0'))
+      } else if (value > verifyForm.pendingAmount) {
+        callback(new Error('收款金额不能超过欠款金额'))
+      } else {
+        callback()
+      }
+    }, trigger: 'blur' }
+  ]
 }
 
 const getStatusType = (status: string) => {
@@ -394,17 +416,14 @@ const handleVerify = (row: Receivable) => {
 }
 
 const handleVerifySubmit = async () => {
-  if (verifyForm.amount <= 0) {
-    ElMessage.error('请输入收款金额')
-    return
-  }
-  
-  if (!verifyForm.paymentDate) {
-    ElMessage.error('请选择收款日期')
-    return
-  }
+  await verifyFormRef.value?.validate()
   
   try {
+    if (!verifyForm.paymentDate) {
+      ElMessage.error('请选择收款日期')
+      return
+    }
+    
     await verifyReceivable(
       verifyForm.receivableID!,
       verifyForm.amount,

@@ -12,6 +12,15 @@
         <el-form-item label="原材料名称">
           <el-input v-model="searchForm.materialName" placeholder="请输入原材料名称" clearable />
         </el-form-item>
+        <el-form-item label="原材料类别">
+          <el-select v-model="searchForm.category" placeholder="请选择原材料类别" clearable style="width: 180px">
+            <el-option label="金属材料" value="金属材料" />
+            <el-option label="非金属材料" value="非金属材料" />
+            <el-option label="化工原料" value="化工原料" />
+            <el-option label="电子元件" value="电子元件" />
+            <el-option label="包装材料" value="包装材料" />
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleSearch">搜索</el-button>
           <el-button @click="handleReset">重置</el-button>
@@ -24,10 +33,9 @@
         <el-table-column prop="spec" label="规格" width="120" />
         <el-table-column prop="unit" label="单位" width="80" />
         <el-table-column prop="category" label="类别" width="120" />
-        <el-table-column prop="stockQuantity" label="库存数量" width="120" align="right" />
-        <el-table-column prop="unitPrice" label="单价" width="120" align="right">
+        <el-table-column prop="cost" label="成本价" width="120" align="right">
           <template #default="{ row }">
-            ¥{{ row.unitPrice?.toFixed(2) || '0.00' }}
+            ¥{{ row.cost?.toFixed(2) || '0.00' }}
           </template>
         </el-table-column>
         <el-table-column label="状态" width="100">
@@ -89,11 +97,8 @@
             <el-form-item label="类别" prop="category">
               <el-input v-model="formData.category" placeholder="请输入类别" />
             </el-form-item>
-            <el-form-item label="库存数量" prop="stockQuantity">
-              <el-input-number v-model="formData.stockQuantity" :min="0" :precision="2" style="width: 100%" />
-            </el-form-item>
-            <el-form-item label="单价" prop="unitPrice">
-              <el-input-number v-model="formData.unitPrice" :min="0" :precision="2" style="width: 100%" />
+            <el-form-item label="成本价" prop="cost">
+              <el-input-number v-model="formData.cost" :min="0" :precision="2" style="width: 100%" />
             </el-form-item>
             <el-form-item label="状态" prop="status">
               <el-radio-group v-model="formData.status">
@@ -231,7 +236,8 @@ const supplierOptions = ref<Supplier[]>([])
 const supplierList = ref<MaterialSupplier[]>([])
 
 const searchForm = reactive({
-  materialName: ''
+  materialName: '',
+  category: ''
 })
 
 const pagination = reactive({
@@ -246,8 +252,7 @@ const formData = reactive<Material>({
   spec: '',
   unit: '',
   category: '',
-  stockQuantity: 0,
-  unitPrice: 0,
+  cost: 0,
   status: 1
 })
 
@@ -263,7 +268,7 @@ const newSupplier = reactive<MaterialSupplier>({
 const formRules = {
   materialName: [{ required: true, message: '请输入原材料名称', trigger: 'blur' }],
   unit: [{ required: true, message: '请输入单位', trigger: 'blur' }],
-  unitPrice: [{ required: true, message: '请输入单价', trigger: 'blur' }]
+  cost: [{ required: true, message: '请输入成本价', trigger: 'blur' }]
 }
 
 const supplierRules = {
@@ -337,6 +342,7 @@ const handleSearch = () => {
 
 const handleReset = () => {
   searchForm.materialName = ''
+  searchForm.category = ''
   handleSearch()
 }
 
@@ -361,8 +367,7 @@ const handleAdd = () => {
     spec: '',
     unit: '',
     category: '',
-    stockQuantity: 0,
-    unitPrice: 0,
+    cost: 0,
     status: 1
   })
   dialogVisible.value = true

@@ -267,7 +267,7 @@ const pagination = reactive({
 })
 
 const formData = reactive<SalesOrder>({
-  orderID: undefined,
+  soID: undefined,
   orderNo: '',
   customerID: 0,
   customerName: '',
@@ -284,6 +284,29 @@ const formRules = {
   customerID: [{ required: true, message: '请选择客户', trigger: 'change' }],
   orderDate: [{ required: true, message: '请选择下单日期', trigger: 'change' }],
   deliveryDate: [{ required: true, message: '请选择交货日期', trigger: 'change' }]
+}
+
+const validateDetails = () => {
+  if (details.value.length === 0) {
+    ElMessage.error('请至少添加一个产品')
+    return false
+  }
+  for (let i = 0; i < details.value.length; i++) {
+    const detail = details.value[i]
+    if (!detail.productID) {
+      ElMessage.error(`第${i + 1}行：请选择产品`)
+      return false
+    }
+    if (!detail.quantity || detail.quantity <= 0) {
+      ElMessage.error(`第${i + 1}行：请输入有效的数量`)
+      return false
+    }
+    if (!detail.unitPrice || detail.unitPrice <= 0) {
+      ElMessage.error(`第${i + 1}行：请输入有效的单价`)
+      return false
+    }
+  }
+  return true
 }
 
 const getStatusType = (status: string) => {
@@ -379,7 +402,7 @@ const handleEdit = async (row: SalesOrder) => {
   dialogTitle.value = '编辑销售订单'
   Object.assign(formData, row)
   try {
-    const res = await getSalesOrderDetails(row.orderID!)
+    const res = await getSalesOrderDetails(row.soID!)
     details.value = res.data
   } catch (error) {
     console.error('获取详情失败', error)
@@ -388,7 +411,7 @@ const handleEdit = async (row: SalesOrder) => {
 }
 
 const handleView = (row: SalesOrder) => {
-  router.push(`/sales/order/${row.orderID}`)
+  router.push(`/sales/order/${row.soID}`)
 }
 
 const handleApprove = async (row: SalesOrder) => {
@@ -398,7 +421,7 @@ const handleApprove = async (row: SalesOrder) => {
       cancelButtonText: '取消',
       type: 'warning'
     })
-    await updateSalesOrderStatus(row.orderID!, 'approved')
+    await updateSalesOrderStatus(row.soID!, 'approved')
     ElMessage.success('审核成功')
     fetchData()
   } catch (error) {
@@ -415,7 +438,7 @@ const handleProduce = async (row: SalesOrder) => {
       cancelButtonText: '取消',
       type: 'warning'
     })
-    await updateSalesOrderStatus(row.orderID!, 'producing')
+    await updateSalesOrderStatus(row.soID!, 'producing')
     ElMessage.success('已开始生产')
     fetchData()
   } catch (error) {
@@ -432,7 +455,7 @@ const handleShip = async (row: SalesOrder) => {
       cancelButtonText: '取消',
       type: 'warning'
     })
-    await updateSalesOrderStatus(row.orderID!, 'shipped')
+    await updateSalesOrderStatus(row.soID!, 'shipped')
     ElMessage.success('已标记为已发货')
     fetchData()
   } catch (error) {
@@ -449,13 +472,13 @@ const handleComplete = async (row: SalesOrder) => {
       cancelButtonText: '取消',
       type: 'success'
     })
-    await updateSalesOrderStatus(row.orderID!, 'completed')
+    await updateSalesOrderStatus(row.soID!, 'completed')
     ElMessage.success('订单已完成，正在生成应收款...')
     
     const receivableData: Receivable = {
       customerID: row.customerID,
       customerName: row.customerName || '',
-      salesOrderID: row.orderID,
+      salesOrderID: row.soID,
       totalAmount: row.totalAmount || 0,
       receivedAmount: 0,
       pendingAmount: row.totalAmount || 0,
@@ -482,7 +505,7 @@ const handleDelete = async (row: SalesOrder) => {
       cancelButtonText: '取消',
       type: 'warning'
     })
-    await deleteSalesOrder(row.orderID!)
+    await deleteSalesOrder(row.soID!)
     ElMessage.success('删除成功')
     fetchData()
   } catch (error) {
@@ -520,6 +543,11 @@ const calculateAmount = (index: number) => {
 
 const handleSubmit = async () => {
   await formRef.value?.validate()
+  
+  if (!validateDetails()) {
+    return
+  }
+  
   try {
     const customer = customerList.value.find(c => c.customerID === formData.customerID)
     if (customer) {
@@ -548,7 +576,7 @@ const handleSubmit = async () => {
 const resetForm = () => {
   formRef.value?.resetFields()
   Object.assign(formData, {
-    orderID: undefined,
+    soID: undefined,
     orderNo: '',
     customerID: 0,
     customerName: '',

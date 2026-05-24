@@ -57,7 +57,7 @@ export interface QuotationRequest {
 }
 
 export interface SalesOrder {
-  orderID?: number
+  soID?: number
   orderNo: string
   customerID: number
   customerName?: string
@@ -75,7 +75,7 @@ export interface SalesOrder {
 
 export interface SalesOrderDetail {
   detailID?: number
-  orderID?: number
+  soID?: number
   productID: number
   productName?: string
   unit?: string
@@ -180,7 +180,7 @@ export const addSalesOrder = (data: SalesOrderRequest) => {
 }
 
 export const updateSalesOrder = (data: SalesOrderRequest) => {
-  return request.put(`/sales/orders/${data.order.orderID}`, data)
+  return request.put(`/sales/orders/${data.order.soID}`, data)
 }
 
 export const deleteSalesOrder = (id: number) => {

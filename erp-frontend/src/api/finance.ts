@@ -12,6 +12,8 @@ export interface Receivable {
   pendingAmount: number
   dueDate?: string
   status: 'unpaid' | 'partial' | 'paid'
+  paymentMethod?: string
+  lastPaymentDate?: string
   remark?: string
   creator?: string
   createDate?: string
@@ -29,6 +31,8 @@ export interface Payable {
   pendingAmount: number
   dueDate?: string
   status: string
+  paymentMethod?: string
+  lastPaymentDate?: string
   remark?: string
   creator?: string
   createDate?: string
@@ -138,8 +142,8 @@ export const deletePayable = (id: number) => {
   return request.delete(`/finance/payables/${id}`)
 }
 
-export const verifyPayable = (id: number, amount: number, remark?: string) => {
-  return request.put(`/finance/payables/${id}/verify`, null, { params: { amount, remark } })
+export const verifyPayable = (id: number, amount: number, paymentDate: string, paymentMethod: string, remark?: string) => {
+  return request.put(`/finance/payables/${id}/verify`, null, { params: { amount, paymentDate, paymentMethod, remark } })
 }
 
 export const updatePayableStatus = (id: number, status: string) => {

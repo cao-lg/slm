@@ -1,1 +1,0 @@
-import{W as e}from"./WarehouseInventory-DY_vUPMT.js";import{i as o,d as r,k as n}from"./index-CFfR3MIG.js";import"./warehouse-DZxsdESf.js";import"./product-Bb1Xc0aP.js";const _=o({__name:"PendingInventory",setup(t){return(a,s)=>(n(),r(e,{"warehouse-id":5,"warehouse-name":"KCE-待处理仓"}))}});export{_ as default};
