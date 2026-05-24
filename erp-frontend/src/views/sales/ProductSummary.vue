@@ -63,7 +63,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { Search, Refresh } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 const searchKeyword = ref('')
 const currentPage = ref(1)
@@ -108,7 +108,15 @@ const handleRefresh = () => {
 }
 
 const handleView = (row: any) => {
-  ElMessage.info(`查看产品 ${row.productName} 的详情`)
+  ElMessageBox.confirm(
+    `产品详情\n\n产品编码：${row.productCode}\n产品名称：${row.productName}\n规格：${row.spec}\n单位：${row.unit}\n总销售数量：${row.totalSales}\n总销售金额：¥${row.totalAmount?.toFixed(2) || '0.00'}\n库存数量：${row.stockQuantity}`,
+    '产品详情',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'info'
+    }
+  ).catch(() => {})
 }
 
 const handleSizeChange = (size: number) => {

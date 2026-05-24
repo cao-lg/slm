@@ -89,7 +89,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { Refresh } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 const dateRange = ref([])
 const statusFilter = ref('')
@@ -154,7 +154,15 @@ const handleRefresh = () => {
 }
 
 const handleView = (row: any) => {
-  ElMessage.info(`查看订单 ${row.orderNo} 的详情`)
+  ElMessageBox.confirm(
+    `订单详情\n\n订单编号：${row.orderNo}\n客户名称：${row.customerName}\n订单日期：${row.orderDate}\n交货日期：${row.deliveryDate}\n订单金额：¥${row.totalAmount?.toFixed(2) || '0.00'}\n订单状态：${getStatusText(row.status)}`,
+    '订单详情',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'info'
+    }
+  ).catch(() => {})
 }
 
 onMounted(() => {
