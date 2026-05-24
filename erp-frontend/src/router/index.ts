@@ -234,6 +234,12 @@ const routes: RouteRecordRaw[] = [
         name: 'OperationLog',
         component: () => import('@/views/system/OperationLogList.vue'),
         meta: { title: '操作日志' }
+      },
+      {
+        path: '/system/data',
+        name: 'DataManagement',
+        component: () => import('@/views/system/DataManagement.vue'),
+        meta: { title: '数据管理' }
       }
     ]
   }

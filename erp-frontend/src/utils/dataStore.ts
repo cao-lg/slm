@@ -1,6 +1,8 @@
 // 前端数据持久化工具
 // 使用 localStorage + 内存缓存实现数据保存
 
+import { DEMO_ACCOUNT_DATA } from './demoData'
+
 const STORAGE_KEY = 'erp_data_store'
 
 interface DataStore {
@@ -23,391 +25,22 @@ interface DataStore {
 }
 
 const DEFAULT_DATA: DataStore = {
-  customers: [
-    {
-      customerID: 1,
-      customerCode: 'KH202505200001',
-      customerName: '北京科技有限公司',
-      contact: '张三',
-      phone: '13800138001',
-      fax: '010-66666666',
-      email: 'zhang@tech.com',
-      address: '北京市朝阳区望京',
-      status: 1
-    },
-    {
-      customerID: 2,
-      customerCode: 'KH202505200002',
-      customerName: '上海商贸集团',
-      contact: '李四',
-      phone: '13800138002',
-      fax: '021-77777777',
-      email: 'li@trade.com',
-      address: '上海市浦东新区',
-      status: 1
-    },
-    {
-      customerID: 3,
-      customerCode: 'KH202505200003',
-      customerName: '广州电子科技',
-      contact: '王五',
-      phone: '13800138003',
-      fax: '020-88888888',
-      email: 'wang@electronics.com',
-      address: '广州市天河区',
-      status: 1
-    }
-  ],
-  quotations: [
-    {
-      quotationID: 1,
-      quotationNo: 'BJ202505200001',
-      customerID: 1,
-      customerName: '北京科技有限公司',
-      quotationDate: '2025-05-20',
-      validUntil: '2025-06-20',
-      totalAmount: 5000.00,
-      status: 'accepted',
-      creator: '陈立国'
-    },
-    {
-      quotationID: 2,
-      quotationNo: 'BJ202505200002',
-      customerID: 2,
-      customerName: '上海商贸集团',
-      quotationDate: '2025-05-18',
-      validUntil: '2025-06-18',
-      totalAmount: 8000.00,
-      status: 'pending',
-      creator: '陈立国'
-    }
-  ],
-  salesOrders: [
-    {
-      orderID: 1,
-      orderNo: 'XS202505200001',
-      customerID: 1,
-      customerName: '北京科技有限公司',
-      orderDate: '2025-05-20',
-      deliveryDate: '2025-05-30',
-      totalAmount: 5000.00,
-      status: 'pending',
-      creator: '陈立国'
-    },
-    {
-      orderID: 2,
-      orderNo: 'XS202505200002',
-      customerID: 2,
-      customerName: '上海商贸集团',
-      orderDate: '2025-05-18',
-      deliveryDate: '2025-05-28',
-      totalAmount: 8000.00,
-      status: 'approved',
-      creator: '陈立国'
-    },
-    {
-      orderID: 3,
-      orderNo: 'XS202505200003',
-      customerID: 3,
-      customerName: '广州电子科技',
-      orderDate: '2025-05-15',
-      deliveryDate: '2025-05-25',
-      totalAmount: 12000.00,
-      status: 'producing',
-      creator: '陈立国'
-    }
-  ],
-  products: [
-    {
-      productID: 1,
-      productCode: 'CP202505200001',
-      productName: 'A型配件',
-      category: '配件',
-      unit: '个',
-      spec: '直径10mm',
-      price: 100.00,
-      cost: 50.00,
-      status: 1
-    },
-    {
-      productID: 2,
-      productCode: 'CP202505200002',
-      productName: 'B型组件',
-      category: '组件',
-      unit: '套',
-      spec: '尺寸20x30cm',
-      price: 200.00,
-      cost: 100.00,
-      status: 1
-    },
-    {
-      productID: 3,
-      productCode: 'CP202505200003',
-      productName: 'C型零件',
-      category: '零件',
-      unit: '件',
-      spec: '长度5cm',
-      price: 50.00,
-      cost: 25.00,
-      status: 1
-    }
-  ],
-  suppliers: [
-    {
-      supplierID: 1,
-      supplierCode: 'HS01103',
-      supplierName: '果山环保',
-      contact: '张三',
-      phone: '13900139001',
-      fax: '0755-66666666',
-      email: 'zhang@material.com',
-      address: '深圳市南山区',
-      status: 1
-    },
-    {
-      supplierID: 2,
-      supplierCode: 'HS01105',
-      supplierName: '德堡新材',
-      contact: '钱七',
-      phone: '13900139002',
-      fax: '0571-77777777',
-      email: 'qian@chemical.com',
-      address: '杭州市西湖区',
-      status: 1
-    },
-    {
-      supplierID: 3,
-      supplierCode: 'GYS202505200003',
-      supplierName: '深圳材料厂',
-      contact: '李四',
-      phone: '13900139003',
-      fax: '0755-88888888',
-      email: 'li@materials.com',
-      address: '深圳市福田区',
-      status: 1
-    }
-  ],
-  purchaseOrders: [
-    {
-      poID: 1,
-      poNo: 'CG202505200001',
-      supplierID: 1,
-      supplierName: '深圳材料厂',
-      orderDate: '2025-05-20',
-      deliveryDate: '2025-05-30',
-      totalAmount: 5000.00,
-      status: 'approved',
-      creator: '陈立国'
-    },
-    {
-      poID: 2,
-      poNo: 'CG202505200002',
-      supplierID: 2,
-      supplierName: '杭州化工公司',
-      orderDate: '2025-05-18',
-      deliveryDate: '2025-05-28',
-      totalAmount: 8000.00,
-      status: 'pending',
-      creator: '陈立国'
-    }
-  ],
-  materials: [
-    {
-      materialID: 1,
-      materialCode: 'MA292',
-      materialName: '乳液',
-      spec: '',
-      unit: 'kg',
-      category: '面漆2',
-      stockQuantity: 1000,
-      unitPrice: 10.0,
-      status: 1
-    },
-    {
-      materialID: 2,
-      materialCode: 'YL202505200002',
-      materialName: '金属棒',
-      spec: '直径50mm',
-      unit: '根',
-      category: '金属',
-      stockQuantity: 200,
-      unitPrice: 25.0,
-      status: 1
-    },
-    {
-      materialID: 3,
-      materialCode: 'YL202505200003',
-      materialName: '螺丝螺母',
-      spec: 'M8',
-      unit: '套',
-      category: '五金',
-      stockQuantity: 1000,
-      unitPrice: 0.5,
-      status: 1
-    },
-    {
-      materialID: 4,
-      materialCode: 'YL202505200004',
-      materialName: '橡胶垫片',
-      spec: '5mm',
-      unit: '片',
-      category: '橡胶',
-      stockQuantity: 2000,
-      unitPrice: 0.2,
-      status: 1
-    }
-  ],
-  productionPlans: [
-    {
-      planId: 1,
-      planNo: 'SC202505200001',
-      productId: 1,
-      productName: 'A型配件',
-      plannedQuantity: 100,
-      completedQuantity: 60,
-      startDate: '2025-05-20',
-      endDate: '2025-05-30',
-      responsible: '张三',
-      status: 'producing',
-      remark: '紧急订单',
-      createDate: '2025-05-20 09:00:00',
-      creator: '陈立国',
-      recipeId: 1,
-      recipeName: 'A型配件配方'
-    },
-    {
-      planId: 2,
-      planNo: 'SC202505200002',
-      productId: 2,
-      productName: 'B型组件',
-      plannedQuantity: 50,
-      completedQuantity: 0,
-      startDate: '2025-05-18',
-      endDate: '2025-05-28',
-      responsible: '李四',
-      status: 'pending',
-      remark: '',
-      createDate: '2025-05-18 10:00:00',
-      creator: '陈立国',
-      recipeId: 2,
-      recipeName: 'B型组件配方'
-    },
-    {
-      planId: 3,
-      planNo: 'SC202505150001',
-      productId: 3,
-      productName: 'C型零件',
-      plannedQuantity: 200,
-      completedQuantity: 200,
-      startDate: '2025-05-15',
-      endDate: '2025-05-25',
-      responsible: '王五',
-      status: 'completed',
-      remark: '已全部完成入库',
-      createDate: '2025-05-15 08:00:00',
-      creator: '陈立国',
-      recipeId: null,
-      recipeName: ''
-    }
-  ],
-  receivables: [
-    {
-      receivableID: 1,
-      orderID: 1,
-      orderNo: 'XS202505200001',
-      customerID: 1,
-      customerName: '北京科技有限公司',
-      totalAmount: 5000.00,
-      receivedAmount: 3000.00,
-      pendingAmount: 2000.00,
-      status: 'partial',
-      createDate: '2025-05-20'
-    },
-    {
-      receivableID: 2,
-      orderID: 2,
-      orderNo: 'XS202505200002',
-      customerID: 2,
-      customerName: '上海商贸集团',
-      totalAmount: 8000.00,
-      receivedAmount: 0.00,
-      pendingAmount: 8000.00,
-      status: 'unpaid',
-      createDate: '2025-05-18'
-    },
-    {
-      receivableID: 3,
-      orderID: 3,
-      orderNo: 'XS202505200003',
-      customerID: 3,
-      customerName: '广州电子科技',
-      totalAmount: 12000.00,
-      receivedAmount: 12000.00,
-      pendingAmount: 0.00,
-      status: 'paid',
-      createDate: '2025-05-15'
-    }
-  ],
-  payables: [
-    {
-      payableID: 1,
-      poID: 1,
-      poNo: 'CG202505200001',
-      supplierID: 1,
-      supplierName: '深圳材料厂',
-      totalAmount: 5000.00,
-      paidAmount: 2000.00,
-      pendingAmount: 3000.00,
-      status: 'partial',
-      createDate: '2025-05-20'
-    },
-    {
-      payableID: 2,
-      poID: 2,
-      poNo: 'CG202505200002',
-      supplierID: 2,
-      supplierName: '杭州化工公司',
-      totalAmount: 8000.00,
-      paidAmount: 0.00,
-      pendingAmount: 8000.00,
-      status: 'unpaid',
-      createDate: '2025-05-18'
-    },
-    {
-      payableID: 3,
-      poID: 3,
-      poNo: 'CG202505200003',
-      supplierID: 1,
-      supplierName: '深圳材料厂',
-      totalAmount: 12000.00,
-      paidAmount: 12000.00,
-      pendingAmount: 0.00,
-      status: 'paid',
-      createDate: '2025-05-15'
-    }
-  ],
-  warehouseDeliveries: [],
-  warehousePicks: [],
-  warehouseTransfers: [],
-  warehouseReturns: [],
-  receipts: [],
-  nextIds: {
-    customerID: 4,
-    quotationID: 3,
-    orderID: 4,
-    productID: 4,
-    supplierID: 4,
-    poID: 3,
-    materialID: 5,
-    planId: 4,
-    receivableID: 4,
-    payableID: 4,
-    deliveryID: 100,
-    pickID: 100,
-    transferID: 100,
-    returnID: 100,
-    receiptID: 100
-  }
+  customers: DEMO_ACCOUNT_DATA.customers,
+  quotations: DEMO_ACCOUNT_DATA.quotations,
+  salesOrders: DEMO_ACCOUNT_DATA.salesOrders,
+  products: DEMO_ACCOUNT_DATA.products,
+  suppliers: DEMO_ACCOUNT_DATA.suppliers,
+  purchaseOrders: DEMO_ACCOUNT_DATA.purchaseOrders,
+  materials: DEMO_ACCOUNT_DATA.materials,
+  productionPlans: DEMO_ACCOUNT_DATA.productionPlans,
+  receivables: DEMO_ACCOUNT_DATA.receivables,
+  payables: DEMO_ACCOUNT_DATA.payables,
+  warehouseDeliveries: DEMO_ACCOUNT_DATA.warehouseDeliveries,
+  warehousePicks: DEMO_ACCOUNT_DATA.warehousePicks,
+  warehouseTransfers: DEMO_ACCOUNT_DATA.warehouseTransfers,
+  warehouseReturns: DEMO_ACCOUNT_DATA.warehouseReturns,
+  receipts: DEMO_ACCOUNT_DATA.receipts,
+  nextIds: DEMO_ACCOUNT_DATA.nextIds
 }
 
 class DataStoreManager {
@@ -632,13 +265,87 @@ class DataStoreManager {
   // 导入数据
   importData(jsonData: string) {
     try {
-      this.data = JSON.parse(jsonData)
+      const parsed = JSON.parse(jsonData)
+      this.data = { ...DEFAULT_DATA, ...parsed }
       this.saveToStorage()
+      console.log('[DataStore] 数据导入成功')
       return true
     } catch (e) {
       console.error('[DataStore] 导入数据失败:', e)
       return false
     }
+  }
+
+  // 加载示例数据
+  loadDemoData() {
+    this.data = { ...DEFAULT_DATA }
+    this.saveToStorage()
+    console.log('[DataStore] 已加载示例数据')
+  }
+
+  // 下载当前数据为 JSON 文件
+  downloadData(filename?: string) {
+    const dataStr = JSON.stringify(this.data, null, 2)
+    const blob = new Blob([dataStr], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename || `erp-data-export-${new Date().toISOString().split('T')[0]}.json`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+    console.log('[DataStore] 数据已下载')
+  }
+
+  // 下载示例数据
+  downloadDemoData(filename?: string) {
+    const dataStr = JSON.stringify(DEMO_ACCOUNT_DATA, null, 2)
+    const blob = new Blob([dataStr], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename || 'erp-demo-data.json'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+    console.log('[DataStore] 示例数据已下载')
+  }
+
+  // 获取数据统计信息
+  getStats() {
+    return {
+      customers: this.data.customers.length,
+      products: this.data.products.length,
+      suppliers: this.data.suppliers.length,
+      materials: this.data.materials.length,
+      quotations: this.data.quotations.length,
+      salesOrders: this.data.salesOrders.length,
+      purchaseOrders: this.data.purchaseOrders.length,
+      productionPlans: this.data.productionPlans.length,
+      receivables: this.data.receivables.length,
+      payables: this.data.payables.length
+    }
+  }
+
+  // 获取当前数据
+  getCurrentData() {
+    return { ...this.data }
+  }
+
+  // 数据验证
+  validateData(data: any) {
+    if (!data) return false
+    const requiredFields = [
+      'customers', 'products', 'suppliers', 'materials',
+      'quotations',
+      'salesOrders', 'purchaseOrders', 'productionPlans',
+      'receivables', 'payables'
+    ]
+    return requiredFields.every(field => 
+      data[field] && Array.isArray(data[field])
+    ) && data.nextIds !== undefined
   }
 }
 
