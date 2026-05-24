@@ -848,6 +848,51 @@ const mockData: Record<string, any> = {
       total: 3
     }
   },
+  '/product/products/1': {
+    code: 200,
+    message: 'success',
+    data: {
+      productID: 1,
+      productCode: 'CP202505200001',
+      productName: 'A型配件',
+      category: '配件',
+      unit: '个',
+      spec: '直径10mm',
+      price: 100.00,
+      cost: 50.00,
+      status: 1
+    }
+  },
+  '/product/products/2': {
+    code: 200,
+    message: 'success',
+    data: {
+      productID: 2,
+      productCode: 'CP202505200002',
+      productName: 'B型组件',
+      category: '组件',
+      unit: '套',
+      spec: '尺寸20x30cm',
+      price: 200.00,
+      cost: 100.00,
+      status: 1
+    }
+  },
+  '/product/products/3': {
+    code: 200,
+    message: 'success',
+    data: {
+      productID: 3,
+      productCode: 'CP202505200003',
+      productName: 'C型零件',
+      category: '零件',
+      unit: '件',
+      spec: '长度5cm',
+      price: 50.00,
+      cost: 25.00,
+      status: 1
+    }
+  },
   '/production/plans': {
     code: 200,
     message: 'success',
