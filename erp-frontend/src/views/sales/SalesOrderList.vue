@@ -1,19 +1,19 @@
 <template>
-  <div class="sales-order-list">
-    <el-card>
+  <div class="sales-order-list" data-testid="sales-order-list-page">
+    <el-card data-testid="sales-order-list-card">
       <template #header>
         <div class="card-header">
           <span>销售订单管理</span>
-          <el-button type="primary" @click="handleAdd">新增订单</el-button>
+          <el-button type="primary" @click="handleAdd" data-testid="add-sales-order-btn">新增订单</el-button>
         </div>
       </template>
 
-      <el-form :inline="true" :model="searchForm" class="search-form">
+      <el-form :inline="true" :model="searchForm" class="search-form" data-testid="sales-order-search-form">
         <el-form-item label="订单号">
-          <el-input v-model="searchForm.orderNo" placeholder="请输入订单号" clearable />
+          <el-input v-model="searchForm.orderNo" placeholder="请输入订单号" clearable data-testid="sales-order-no-search-input" />
         </el-form-item>
         <el-form-item label="客户">
-          <el-select v-model="searchForm.customerID" placeholder="请选择客户" clearable filterable style="width: 200px">
+          <el-select v-model="searchForm.customerID" placeholder="请选择客户" clearable filterable style="width: 200px" data-testid="sales-order-customer-search-select">
             <el-option
               v-for="customer in customerList"
               :key="customer.customerID"
@@ -23,7 +23,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model="searchForm.status" placeholder="请选择状态" clearable style="width: 150px">
+          <el-select v-model="searchForm.status" placeholder="请选择状态" clearable style="width: 150px" data-testid="sales-order-status-search-select">
             <el-option label="待审核" value="pending" />
             <el-option label="已审核" value="approved" />
             <el-option label="生产中" value="producing" />
@@ -32,12 +32,12 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleSearch">搜索</el-button>
-          <el-button @click="handleReset">重置</el-button>
+          <el-button type="primary" @click="handleSearch" data-testid="sales-order-search-btn">搜索</el-button>
+          <el-button @click="handleReset" data-testid="sales-order-reset-btn">重置</el-button>
         </el-form-item>
       </el-form>
 
-      <el-table :data="tableData" border style="width: 100%" v-loading="loading">
+      <el-table :data="tableData" border style="width: 100%" v-loading="loading" data-testid="sales-order-table">
         <el-table-column prop="orderNo" label="订单号" width="180" />
         <el-table-column prop="customerName" label="客户名称" width="200" />
         <el-table-column prop="orderDate" label="下单日期" width="120" />
@@ -57,13 +57,13 @@
         <el-table-column prop="creator" label="制单人" width="100" />
         <el-table-column label="操作" width="300" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleView(row)">查看</el-button>
-            <el-button link type="primary" size="small" @click="handleEdit(row)" v-if="row.status === 'pending'">编辑</el-button>
-            <el-button link type="success" size="small" @click="handleApprove(row)" v-if="row.status === 'pending'">审核</el-button>
-            <el-button link type="warning" size="small" @click="handleProduce(row)" v-if="row.status === 'approved'">开始生产</el-button>
-            <el-button link type="info" size="small" @click="handleShip(row)" v-if="row.status === 'producing'">发货</el-button>
-            <el-button link type="success" size="small" @click="handleComplete(row)" v-if="row.status === 'shipped'">完成</el-button>
-            <el-button link type="danger" size="small" @click="handleDelete(row)" v-if="row.status === 'pending'">删除</el-button>
+            <el-button link type="primary" size="small" @click="handleView(row)" :data-testid="'view-sales-order-btn-' + row.soID">查看</el-button>
+            <el-button link type="primary" size="small" @click="handleEdit(row)" v-if="row.status === 'pending'" :data-testid="'edit-sales-order-btn-' + row.soID">编辑</el-button>
+            <el-button link type="success" size="small" @click="handleApprove(row)" v-if="row.status === 'pending'" :data-testid="'approve-sales-order-btn-' + row.soID">审核</el-button>
+            <el-button link type="warning" size="small" @click="handleProduce(row)" v-if="row.status === 'approved'" :data-testid="'produce-sales-order-btn-' + row.soID">开始生产</el-button>
+            <el-button link type="info" size="small" @click="handleShip(row)" v-if="row.status === 'producing'" :data-testid="'ship-sales-order-btn-' + row.soID">发货</el-button>
+            <el-button link type="success" size="small" @click="handleComplete(row)" v-if="row.status === 'shipped'" :data-testid="'complete-sales-order-btn-' + row.soID">完成</el-button>
+            <el-button link type="danger" size="small" @click="handleDelete(row)" v-if="row.status === 'pending'" :data-testid="'delete-sales-order-btn-' + row.soID">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -77,6 +77,7 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         class="pagination"
+        data-testid="sales-order-pagination"
       />
     </el-card>
 
@@ -85,17 +86,19 @@
       :title="dialogTitle"
       width="900px"
       @close="resetForm"
+      data-testid="sales-order-dialog"
     >
       <el-form
         ref="formRef"
         :model="formData"
         :rules="formRules"
         label-width="100px"
+        data-testid="sales-order-form"
       >
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="客户" prop="customerID">
-              <el-select v-model="formData.customerID" placeholder="请选择客户" filterable style="width: 100%">
+              <el-select v-model="formData.customerID" placeholder="请选择客户" filterable style="width: 100%" data-testid="sales-order-customer-select">
                 <el-option
                   v-for="customer in customerList"
                   :key="customer.customerID"
@@ -112,6 +115,7 @@
                 type="date"
                 placeholder="选择日期"
                 style="width: 100%"
+                data-testid="sales-order-date-picker"
               />
             </el-form-item>
           </el-col>
@@ -124,12 +128,13 @@
                 type="date"
                 placeholder="选择日期"
                 style="width: 100%"
+                data-testid="sales-order-delivery-picker"
               />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="订单金额">
-              <el-input v-model="formData.totalAmount" readonly>
+              <el-input v-model="formData.totalAmount" readonly data-testid="sales-order-total-input">
                 <template #prefix>¥</template>
               </el-input>
             </el-form-item>
@@ -138,11 +143,11 @@
 
         <el-divider>产品明细</el-divider>
 
-        <div class="detail-table">
+        <div class="detail-table" data-testid="sales-order-detail-table">
           <el-table :data="details" border size="small">
             <el-table-column label="产品" width="200">
               <template #default="{ row, $index }">
-                <el-select v-model="row.productID" placeholder="选择产品" filterable @change="handleProductChange($index)">
+                <el-select v-model="row.productID" placeholder="选择产品" filterable @change="handleProductChange($index)" :data-testid="'sales-order-product-select-' + $index">
                   <el-option
                     v-for="product in productList"
                     :key="product.productID"
@@ -156,12 +161,12 @@
             <el-table-column prop="unit" label="单位" width="80" />
             <el-table-column label="数量" width="120">
               <template #default="{ row, $index }">
-                <el-input-number v-model="row.quantity" :min="0" :precision="2" size="small" @change="calculateAmount($index)" />
+                <el-input-number v-model="row.quantity" :min="0" :precision="2" size="small" @change="calculateAmount($index)" :data-testid="'sales-order-quantity-input-' + $index" />
               </template>
             </el-table-column>
             <el-table-column label="单价" width="120">
               <template #default="{ row, $index }">
-                <el-input-number v-model="row.unitPrice" :min="0" :precision="2" size="small" @change="calculateAmount($index)" />
+                <el-input-number v-model="row.unitPrice" :min="0" :precision="2" size="small" @change="calculateAmount($index)" :data-testid="'sales-order-unit-price-input-' + $index" />
               </template>
             </el-table-column>
             <el-table-column prop="amount" label="金额" width="120">
@@ -171,16 +176,16 @@
             </el-table-column>
             <el-table-column label="操作" width="80">
               <template #default="{ $index }">
-                <el-button link type="danger" size="small" @click="removeDetail($index)">删除</el-button>
+                <el-button link type="danger" size="small" @click="removeDetail($index)" :data-testid="'sales-order-remove-detail-btn-' + $index">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
-          <el-button type="primary" size="small" @click="addDetail" class="add-detail-btn">添加产品</el-button>
+          <el-button type="primary" size="small" @click="addDetail" class="add-detail-btn" data-testid="sales-order-add-detail-btn">添加产品</el-button>
         </div>
       </el-form>
       <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleSubmit">确定</el-button>
+        <el-button @click="dialogVisible = false" data-testid="sales-order-dialog-cancel-btn">取消</el-button>
+        <el-button type="primary" @click="handleSubmit" data-testid="sales-order-dialog-submit-btn">确定</el-button>
       </template>
     </el-dialog>
 
@@ -188,8 +193,9 @@
       v-model="viewDialogVisible"
       title="订单详情"
       width="900px"
+      data-testid="sales-order-view-dialog"
     >
-      <el-descriptions :column="2" border v-if="currentRow">
+      <el-descriptions :column="2" border v-if="currentRow" data-testid="sales-order-view-descriptions">
         <el-descriptions-item label="订单号">{{ currentRow.orderNo }}</el-descriptions-item>
         <el-descriptions-item label="客户名称">{{ currentRow.customerName }}</el-descriptions-item>
         <el-descriptions-item label="下单日期">{{ currentRow.orderDate }}</el-descriptions-item>
@@ -203,7 +209,7 @@
 
       <el-divider>产品明细</el-divider>
 
-      <el-table :data="viewDetails" border size="small">
+      <el-table :data="viewDetails" border size="small" data-testid="sales-order-view-details">
         <el-table-column prop="productName" label="产品名称" />
         <el-table-column prop="unit" label="单位" width="80" />
         <el-table-column prop="quantity" label="数量" width="100" />

@@ -1,26 +1,26 @@
 <template>
-  <div class="customer-list">
-    <el-card>
+  <div class="customer-list" data-testid="customer-list-page">
+    <el-card data-testid="customer-list-card">
       <template #header>
         <div class="card-header">
           <span>客户管理</span>
-          <el-button type="primary" @click="handleAdd">新增客户</el-button>
+          <el-button type="primary" @click="handleAdd" data-testid="add-customer-btn">新增客户</el-button>
         </div>
       </template>
 
       <!-- 搜索栏 -->
-      <el-form :inline="true" :model="searchForm" class="search-form">
+      <el-form :inline="true" :model="searchForm" class="search-form" data-testid="customer-search-form">
         <el-form-item label="客户名称">
-          <el-input v-model="searchForm.customerName" placeholder="请输入客户名称" clearable />
+          <el-input v-model="searchForm.customerName" placeholder="请输入客户名称" clearable data-testid="customer-name-search-input" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleSearch">搜索</el-button>
-          <el-button @click="handleReset">重置</el-button>
+          <el-button type="primary" @click="handleSearch" data-testid="customer-search-btn">搜索</el-button>
+          <el-button @click="handleReset" data-testid="customer-reset-btn">重置</el-button>
         </el-form-item>
       </el-form>
 
       <!-- 表格 -->
-      <el-table :data="tableData" border style="width: 100%" v-loading="loading">
+      <el-table :data="tableData" border style="width: 100%" v-loading="loading" data-testid="customer-table">
         <el-table-column prop="customerCode" label="客户编号" width="150" />
         <el-table-column prop="customerName" label="客户名称" width="180" />
         <el-table-column prop="contact" label="联系人" width="100" />
@@ -37,9 +37,9 @@
         </el-table-column>
         <el-table-column label="操作" width="280" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleView(row)">查看</el-button>
-            <el-button link type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
-            <el-button link type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+            <el-button link type="primary" size="small" @click="handleView(row)" :data-testid="'view-customer-btn-' + row.customerID">查看</el-button>
+            <el-button link type="primary" size="small" @click="handleEdit(row)" :data-testid="'edit-customer-btn-' + row.customerID">编辑</el-button>
+            <el-button link type="danger" size="small" @click="handleDelete(row)" :data-testid="'delete-customer-btn-' + row.customerID">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -54,6 +54,7 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         class="pagination"
+        data-testid="customer-pagination"
       />
     </el-card>
 
@@ -63,44 +64,46 @@
       :title="dialogTitle"
       width="600px"
       @close="resetForm"
+      data-testid="customer-dialog"
     >
       <el-form
         ref="formRef"
         :model="formData"
         :rules="formRules"
         label-width="100px"
+        data-testid="customer-form"
       >
         <el-form-item label="客户编号" v-if="!isEdit">
-          <el-input v-model="formData.customerCode" disabled />
+          <el-input v-model="formData.customerCode" disabled data-testid="customer-code-input" />
         </el-form-item>
         <el-form-item label="客户名称" prop="customerName">
-          <el-input v-model="formData.customerName" placeholder="请输入客户名称" />
+          <el-input v-model="formData.customerName" placeholder="请输入客户名称" data-testid="customer-name-input" />
         </el-form-item>
         <el-form-item label="联系人" prop="contact">
-          <el-input v-model="formData.contact" placeholder="请输入联系人" />
+          <el-input v-model="formData.contact" placeholder="请输入联系人" data-testid="customer-contact-input" />
         </el-form-item>
         <el-form-item label="电话" prop="phone">
-          <el-input v-model="formData.phone" placeholder="请输入电话" />
+          <el-input v-model="formData.phone" placeholder="请输入电话" data-testid="customer-phone-input" />
         </el-form-item>
         <el-form-item label="传真" prop="fax">
-          <el-input v-model="formData.fax" placeholder="请输入传真" />
+          <el-input v-model="formData.fax" placeholder="请输入传真" data-testid="customer-fax-input" />
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
-          <el-input v-model="formData.email" placeholder="请输入邮箱" />
+          <el-input v-model="formData.email" placeholder="请输入邮箱" data-testid="customer-email-input" />
         </el-form-item>
         <el-form-item label="地址" prop="address">
-          <el-input v-model="formData.address" type="textarea" :rows="3" placeholder="请输入地址" />
+          <el-input v-model="formData.address" type="textarea" :rows="3" placeholder="请输入地址" data-testid="customer-address-input" />
         </el-form-item>
         <el-form-item label="状态" prop="status">
-          <el-radio-group v-model="formData.status">
-            <el-radio :label="1">启用</el-radio>
-            <el-radio :label="0">禁用</el-radio>
+          <el-radio-group v-model="formData.status" data-testid="customer-status-radio-group">
+            <el-radio :label="1" data-testid="customer-status-enabled">启用</el-radio>
+            <el-radio :label="0" data-testid="customer-status-disabled">禁用</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleSubmit">确定</el-button>
+        <el-button @click="dialogVisible = false" data-testid="customer-dialog-cancel-btn">取消</el-button>
+        <el-button type="primary" @click="handleSubmit" data-testid="customer-dialog-submit-btn">确定</el-button>
       </template>
     </el-dialog>
   </div>

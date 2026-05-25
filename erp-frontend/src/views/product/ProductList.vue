@@ -1,20 +1,20 @@
 <template>
-  <div class="product-list">
-    <el-card>
+  <div class="product-list" data-testid="product-list-page">
+    <el-card data-testid="product-list-card">
       <template #header>
         <div class="card-header">
           <span>产品管理</span>
-          <el-button type="primary" @click="handleAdd">新增产品</el-button>
+          <el-button type="primary" @click="handleAdd" data-testid="add-product-btn">新增产品</el-button>
         </div>
       </template>
 
       <!-- 搜索栏 -->
-      <el-form :inline="true" :model="searchForm" class="search-form">
+      <el-form :inline="true" :model="searchForm" class="search-form" data-testid="product-search-form">
         <el-form-item label="产品名称">
-          <el-input v-model="searchForm.productName" placeholder="请输入产品名称" clearable />
+          <el-input v-model="searchForm.productName" placeholder="请输入产品名称" clearable data-testid="product-name-search-input" />
         </el-form-item>
         <el-form-item label="产品类别">
-          <el-select v-model="searchForm.category" placeholder="请选择产品类别" clearable style="width: 180px">
+          <el-select v-model="searchForm.category" placeholder="请选择产品类别" clearable style="width: 180px" data-testid="product-category-search-select">
             <el-option label="原材料" value="原材料" />
             <el-option label="半成品" value="半成品" />
             <el-option label="成品" value="成品" />
@@ -22,13 +22,13 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleSearch">搜索</el-button>
-          <el-button @click="handleReset">重置</el-button>
+          <el-button type="primary" @click="handleSearch" data-testid="product-search-btn">搜索</el-button>
+          <el-button @click="handleReset" data-testid="product-reset-btn">重置</el-button>
         </el-form-item>
       </el-form>
 
       <!-- 表格 -->
-      <el-table :data="tableData" border style="width: 100%" v-loading="loading">
+      <el-table :data="tableData" border style="width: 100%" v-loading="loading" data-testid="product-table">
         <el-table-column prop="productCode" label="产品编号" width="180" />
         <el-table-column prop="productName" label="产品名称" width="200" />
         <el-table-column prop="category" label="类别" width="120" />
@@ -53,9 +53,9 @@
         </el-table-column>
         <el-table-column label="操作" width="280" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleView(row)">查看</el-button>
-            <el-button link type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
-            <el-button link type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+            <el-button link type="primary" size="small" @click="handleView(row)" :data-testid="'view-product-btn-' + row.productID">查看</el-button>
+            <el-button link type="primary" size="small" @click="handleEdit(row)" :data-testid="'edit-product-btn-' + row.productID">编辑</el-button>
+            <el-button link type="danger" size="small" @click="handleDelete(row)" :data-testid="'delete-product-btn-' + row.productID">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -70,6 +70,7 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         class="pagination"
+        data-testid="product-pagination"
       />
     </el-card>
 
@@ -79,44 +80,46 @@
       :title="dialogTitle"
       width="600px"
       @close="resetForm"
+      data-testid="product-dialog"
     >
       <el-form
         ref="formRef"
         :model="formData"
         :rules="formRules"
         label-width="100px"
+        data-testid="product-form"
       >
         <el-form-item label="产品编号" v-if="!isEdit">
-          <el-input v-model="formData.productCode" disabled />
+          <el-input v-model="formData.productCode" disabled data-testid="product-code-input" />
         </el-form-item>
         <el-form-item label="产品名称" prop="productName">
-          <el-input v-model="formData.productName" placeholder="请输入产品名称" />
+          <el-input v-model="formData.productName" placeholder="请输入产品名称" data-testid="product-name-input" />
         </el-form-item>
         <el-form-item label="类别" prop="category">
-          <el-input v-model="formData.category" placeholder="请输入类别" />
+          <el-input v-model="formData.category" placeholder="请输入类别" data-testid="product-category-input" />
         </el-form-item>
         <el-form-item label="单位" prop="unit">
-          <el-input v-model="formData.unit" placeholder="请输入单位" />
+          <el-input v-model="formData.unit" placeholder="请输入单位" data-testid="product-unit-input" />
         </el-form-item>
         <el-form-item label="规格" prop="spec">
-          <el-input v-model="formData.spec" placeholder="请输入规格" />
+          <el-input v-model="formData.spec" placeholder="请输入规格" data-testid="product-spec-input" />
         </el-form-item>
         <el-form-item label="售价" prop="price">
-          <el-input-number v-model="formData.price" :min="0" :step="0.01" style="width: 100%" />
+          <el-input-number v-model="formData.price" :min="0" :step="0.01" style="width: 100%" data-testid="product-price-input" />
         </el-form-item>
         <el-form-item label="成本" prop="cost">
-          <el-input-number v-model="formData.cost" :min="0" :step="0.01" style="width: 100%" />
+          <el-input-number v-model="formData.cost" :min="0" :step="0.01" style="width: 100%" data-testid="product-cost-input" />
         </el-form-item>
         <el-form-item label="状态" prop="status">
-          <el-radio-group v-model="formData.status">
-            <el-radio :label="1">启用</el-radio>
-            <el-radio :label="0">禁用</el-radio>
+          <el-radio-group v-model="formData.status" data-testid="product-status-radio-group">
+            <el-radio :label="1" data-testid="product-status-enabled">启用</el-radio>
+            <el-radio :label="0" data-testid="product-status-disabled">禁用</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleSubmit">确定</el-button>
+        <el-button @click="dialogVisible = false" data-testid="product-dialog-cancel-btn">取消</el-button>
+        <el-button type="primary" @click="handleSubmit" data-testid="product-dialog-submit-btn">确定</el-button>
       </template>
     </el-dialog>
   </div>

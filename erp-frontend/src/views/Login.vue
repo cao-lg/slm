@@ -4,13 +4,15 @@
       <div class="login-header">
         <h1>ERP企业管理系统</h1>
       </div>
-      <el-form ref="loginFormRef" :model="loginForm" :rules="rules" class="login-form">
+      <el-form ref="loginFormRef" :model="loginForm" :rules="rules" class="login-form" data-testid="login-form">
         <el-form-item prop="username">
           <el-input 
             v-model="loginForm.username" 
             placeholder="用户名"
             prefix-icon="User"
             size="large"
+            name="username"
+            data-testid="username-input"
           />
         </el-form-item>
         <el-form-item prop="password">
@@ -21,6 +23,8 @@
             prefix-icon="Lock"
             size="large"
             @keyup.enter="handleLogin"
+            name="password"
+            data-testid="password-input"
           />
         </el-form-item>
         <el-form-item>
@@ -30,6 +34,7 @@
             :loading="loading" 
             style="width: 100%"
             @click="handleLogin"
+            data-testid="login-button"
           >
             登 录
           </el-button>

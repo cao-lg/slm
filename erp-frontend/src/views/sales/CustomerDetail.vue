@@ -1,15 +1,15 @@
 <template>
-  <div class="customer-detail">
-    <el-card>
+  <div class="customer-detail" data-testid="customer-detail-page">
+    <el-card data-testid="customer-detail-card">
       <template #header>
         <div class="card-header">
           <span>客户详情</span>
-          <el-button @click="goBack">返回</el-button>
+          <el-button @click="goBack" data-testid="customer-detail-back-btn">返回</el-button>
         </div>
       </template>
 
       <div v-loading="loading" class="detail-content">
-        <el-descriptions :column="2" border v-if="customer">
+        <el-descriptions :column="2" border v-if="customer" data-testid="customer-detail-descriptions">
           <el-descriptions-item label="客户编号">
             {{ customer.customerCode }}
           </el-descriptions-item>

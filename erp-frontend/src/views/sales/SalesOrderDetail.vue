@@ -1,15 +1,15 @@
 <template>
-  <div class="sales-order-detail">
-    <el-card>
+  <div class="sales-order-detail" data-testid="sales-order-detail-page">
+    <el-card data-testid="sales-order-detail-card">
       <template #header>
         <div class="card-header">
           <span>销售订单详情</span>
-          <el-button @click="goBack">返回</el-button>
+          <el-button @click="goBack" data-testid="sales-order-detail-back-btn">返回</el-button>
         </div>
       </template>
 
       <div v-loading="loading" class="detail-content">
-        <el-descriptions :column="2" border v-if="order">
+        <el-descriptions :column="2" border v-if="order" data-testid="sales-order-detail-descriptions">
           <el-descriptions-item label="订单编号">
             {{ order.orderNo }}
           </el-descriptions-item>
@@ -47,9 +47,9 @@
           </el-descriptions-item>
         </el-descriptions>
 
-        <div class="detail-section">
+        <div class="detail-section" data-testid="sales-order-detail-section">
           <h4>订单明细</h4>
-          <el-table :data="details" border style="width: 100%">
+          <el-table :data="details" border style="width: 100%" data-testid="sales-order-detail-table">
             <el-table-column prop="productName" label="产品名称" />
             <el-table-column prop="quantity" label="数量" />
             <el-table-column prop="unitPrice" label="单价">

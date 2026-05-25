@@ -1,19 +1,19 @@
 <template>
-  <div class="quotation-list">
-    <el-card>
+  <div class="quotation-list" data-testid="quotation-list-page">
+    <el-card data-testid="quotation-list-card">
       <template #header>
         <div class="card-header">
           <span>报价单管理</span>
-          <el-button type="primary" @click="handleAdd">新增报价单</el-button>
+          <el-button type="primary" @click="handleAdd" data-testid="add-quotation-btn">新增报价单</el-button>
         </div>
       </template>
 
-      <el-form :inline="true" :model="searchForm" class="search-form">
+      <el-form :inline="true" :model="searchForm" class="search-form" data-testid="quotation-search-form">
         <el-form-item label="报价单号">
-          <el-input v-model="searchForm.quotationNo" placeholder="请输入报价单号" clearable />
+          <el-input v-model="searchForm.quotationNo" placeholder="请输入报价单号" clearable data-testid="quotation-no-search-input" />
         </el-form-item>
         <el-form-item label="客户">
-          <el-select v-model="searchForm.customerID" placeholder="请选择客户" clearable filterable style="width: 200px">
+          <el-select v-model="searchForm.customerID" placeholder="请选择客户" clearable filterable style="width: 200px" data-testid="quotation-customer-search-select">
             <el-option
               v-for="customer in customerList"
               :key="customer.customerID"
@@ -23,7 +23,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model="searchForm.status" placeholder="请选择状态" clearable style="width: 150px">
+          <el-select v-model="searchForm.status" placeholder="请选择状态" clearable style="width: 150px" data-testid="quotation-status-search-select">
             <el-option label="待确认" value="pending" />
             <el-option label="已接受" value="accepted" />
             <el-option label="已拒绝" value="rejected" />
@@ -31,12 +31,12 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleSearch">搜索</el-button>
-          <el-button @click="handleReset">重置</el-button>
+          <el-button type="primary" @click="handleSearch" data-testid="quotation-search-btn">搜索</el-button>
+          <el-button @click="handleReset" data-testid="quotation-reset-btn">重置</el-button>
         </el-form-item>
       </el-form>
 
-      <el-table :data="tableData" border style="width: 100%" v-loading="loading">
+      <el-table :data="tableData" border style="width: 100%" v-loading="loading" data-testid="quotation-table">
         <el-table-column prop="quotationNo" label="报价单号" width="180" />
         <el-table-column prop="customerName" label="客户名称" width="200" />
         <el-table-column prop="quotationDate" label="报价日期" width="120" />
@@ -56,12 +56,12 @@
         <el-table-column prop="creator" label="制单人" width="100" />
         <el-table-column label="操作" width="300" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleView(row)">查看</el-button>
-            <el-button link type="primary" size="small" @click="handleEdit(row)" v-if="row.status === 'pending'">编辑</el-button>
-            <el-button link type="success" size="small" @click="handleApprove(row)" v-if="row.status === 'pending'">接受</el-button>
-            <el-button link type="warning" size="small" @click="handleReject(row)" v-if="row.status === 'pending'">拒绝</el-button>
-            <el-button link type="primary" size="small" @click="handleConvertToOrder(row)" v-if="row.status === 'accepted'">转为订单</el-button>
-            <el-button link type="danger" size="small" @click="handleDelete(row)" v-if="row.status === 'pending'">删除</el-button>
+            <el-button link type="primary" size="small" @click="handleView(row)" :data-testid="'view-quotation-btn-' + row.quotationID">查看</el-button>
+            <el-button link type="primary" size="small" @click="handleEdit(row)" v-if="row.status === 'pending'" :data-testid="'edit-quotation-btn-' + row.quotationID">编辑</el-button>
+            <el-button link type="success" size="small" @click="handleApprove(row)" v-if="row.status === 'pending'" :data-testid="'approve-quotation-btn-' + row.quotationID">接受</el-button>
+            <el-button link type="warning" size="small" @click="handleReject(row)" v-if="row.status === 'pending'" :data-testid="'reject-quotation-btn-' + row.quotationID">拒绝</el-button>
+            <el-button link type="primary" size="small" @click="handleConvertToOrder(row)" v-if="row.status === 'accepted'" :data-testid="'convert-quotation-btn-' + row.quotationID">转为订单</el-button>
+            <el-button link type="danger" size="small" @click="handleDelete(row)" v-if="row.status === 'pending'" :data-testid="'delete-quotation-btn-' + row.quotationID">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -75,6 +75,7 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         class="pagination"
+        data-testid="quotation-pagination"
       />
     </el-card>
 
@@ -83,17 +84,19 @@
       :title="dialogTitle"
       width="900px"
       @close="resetForm"
+      data-testid="quotation-dialog"
     >
       <el-form
         ref="formRef"
         :model="formData"
         :rules="formRules"
         label-width="100px"
+        data-testid="quotation-form"
       >
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="客户" prop="customerID">
-              <el-select v-model="formData.customerID" placeholder="请选择客户" filterable style="width: 100%">
+              <el-select v-model="formData.customerID" placeholder="请选择客户" filterable style="width: 100%" data-testid="quotation-customer-select">
                 <el-option
                   v-for="customer in customerList"
                   :key="customer.customerID"
@@ -110,6 +113,7 @@
                 type="date"
                 placeholder="选择日期"
                 style="width: 100%"
+                data-testid="quotation-date-picker"
               />
             </el-form-item>
           </el-col>
@@ -122,12 +126,13 @@
                 type="date"
                 placeholder="选择日期"
                 style="width: 100%"
+                data-testid="quotation-valid-until-picker"
               />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="总金额">
-              <el-input v-model="formData.totalAmount" readonly>
+              <el-input v-model="formData.totalAmount" readonly data-testid="quotation-total-input">
                 <template #prefix>¥</template>
               </el-input>
             </el-form-item>
@@ -136,11 +141,11 @@
 
         <el-divider>产品明细</el-divider>
 
-        <div class="detail-table">
+        <div class="detail-table" data-testid="quotation-detail-table">
           <el-table :data="details" border size="small">
             <el-table-column label="产品" width="200">
               <template #default="{ row, $index }">
-                <el-select v-model="row.productID" placeholder="选择产品" filterable @change="handleProductChange($index)">
+                <el-select v-model="row.productID" placeholder="选择产品" filterable @change="handleProductChange($index)" :data-testid="'quotation-product-select-' + $index">
                   <el-option
                     v-for="product in productList"
                     :key="product.productID"
@@ -154,12 +159,12 @@
             <el-table-column prop="unit" label="单位" width="80" />
             <el-table-column label="数量" width="120">
               <template #default="{ row, $index }">
-                <el-input-number v-model="row.quantity" :min="0" :precision="2" size="small" @change="calculateAmount($index)" />
+                <el-input-number v-model="row.quantity" :min="0" :precision="2" size="small" @change="calculateAmount($index)" :data-testid="'quotation-quantity-input-' + $index" />
               </template>
             </el-table-column>
             <el-table-column label="单价" width="120">
               <template #default="{ row, $index }">
-                <el-input-number v-model="row.unitPrice" :min="0" :precision="2" size="small" @change="calculateAmount($index)" />
+                <el-input-number v-model="row.unitPrice" :min="0" :precision="2" size="small" @change="calculateAmount($index)" :data-testid="'quotation-unit-price-input-' + $index" />
               </template>
             </el-table-column>
             <el-table-column prop="amount" label="金额" width="120">
@@ -169,16 +174,16 @@
             </el-table-column>
             <el-table-column label="操作" width="80">
               <template #default="{ $index }">
-                <el-button link type="danger" size="small" @click="removeDetail($index)">删除</el-button>
+                <el-button link type="danger" size="small" @click="removeDetail($index)" :data-testid="'quotation-remove-detail-btn-' + $index">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
-          <el-button type="primary" size="small" @click="addDetail" class="add-detail-btn">添加产品</el-button>
+          <el-button type="primary" size="small" @click="addDetail" class="add-detail-btn" data-testid="quotation-add-detail-btn">添加产品</el-button>
         </div>
       </el-form>
       <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleSubmit">确定</el-button>
+        <el-button @click="dialogVisible = false" data-testid="quotation-dialog-cancel-btn">取消</el-button>
+        <el-button type="primary" @click="handleSubmit" data-testid="quotation-dialog-submit-btn">确定</el-button>
       </template>
     </el-dialog>
 
@@ -186,8 +191,9 @@
       v-model="viewDialogVisible"
       title="报价单详情"
       width="900px"
+      data-testid="quotation-view-dialog"
     >
-      <el-descriptions :column="2" border v-if="currentRow">
+      <el-descriptions :column="2" border v-if="currentRow" data-testid="quotation-view-descriptions">
         <el-descriptions-item label="报价单号">{{ currentRow.quotationNo }}</el-descriptions-item>
         <el-descriptions-item label="客户名称">{{ currentRow.customerName }}</el-descriptions-item>
         <el-descriptions-item label="报价日期">{{ currentRow.quotationDate }}</el-descriptions-item>
@@ -201,7 +207,7 @@
 
       <el-divider>产品明细</el-divider>
 
-      <el-table :data="viewDetails" border size="small">
+      <el-table :data="viewDetails" border size="small" data-testid="quotation-view-details">
         <el-table-column prop="productName" label="产品名称" />
         <el-table-column prop="unit" label="单位" width="80" />
         <el-table-column prop="quantity" label="数量" width="100" />

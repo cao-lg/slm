@@ -1,92 +1,138 @@
 import { test, expect } from '@playwright/test';
+import { injectDemoData, login, clearTestData } from './utils/test-helpers';
 
-test.describe('产品管理测试', () => {
+test.describe('产品管理模块', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:3000/login');
-    await page.fill('input[name="username"]', 'admin');
-    await page.fill('input[name="password"]', 'admin123');
-    await page.click('button:has-text("登 录")');
-    await page.waitForURL('**/home');
+    // 注入演示数据
+    await injectDemoData(page);
+    // 登录系统
+    await login(page, 'admin', 'admin123');
   });
 
-  test('产品列表 - 点击查看按钮应该跳转到详情页', async ({ page }) => {
-    await page.click('text=产品管理');
-    
-    await page.waitForSelector('.el-table');
-    
-    const firstRow = page.locator('.el-table__row').first();
-    await firstRow.locator('button:has-text("查看")').click();
-    
-    await page.waitForURL('**/product/**');
-    
-    const detailCard = page.locator('.el-card');
-    await expect(detailCard).toBeVisible();
-    
-    const title = await page.locator('.el-card__header span').textContent();
-    expect(title).toContain('产品详情');
-    
-    const descriptions = page.locator('.el-descriptions__label');
-    expect(await descriptions.count()).toBeGreaterThan(0);
+  test.afterEach(async ({ page }) => {
+    // 清理测试数据
+    await clearTestData(page);
   });
 
-  test('产品详情页 - 应该显示完整的产品信息', async ({ page }) => {
-    await page.goto('http://localhost:3000/product/1');
+  test('用户可以查看产品列表', async ({ page }) => {
+    // 导航到产品管理页面
+    await page.goto('/product');
     
-    await page.waitForSelector('.el-descriptions');
+    // 验证页面加载
+    await expect(page.locator('[data-testid="product-list-page"]')).toBeVisible();
+    await expect(page.locator('[data-testid="product-table"]')).toBeVisible();
     
-    const productCode = await page.locator('.el-descriptions__content:has-text("CP202505200001")').isVisible();
-    expect(productCode).toBeTruthy();
-    
-    const productName = await page.locator('.el-descriptions__content:has-text("A型配件")').isVisible();
-    expect(productName).toBeTruthy();
-    
-    const price = await page.locator('.el-descriptions__content:has-text("¥100.00")').isVisible();
-    expect(price).toBeTruthy();
-    
-    const cost = await page.locator('.el-descriptions__content:has-text("¥50.00")').isVisible();
-    expect(cost).toBeTruthy();
+    // 验证表格包含数据
+    const tableRows = page.locator('.el-table__row');
+    await expect(tableRows).toHaveCount(5); // 演示数据中有5个产品
   });
 
-  test('产品详情页 - 返回按钮应该能正常工作', async ({ page }) => {
-    await page.goto('http://localhost:3000/product/1');
+  test('用户可以搜索产品', async ({ page }) => {
+    // 导航到产品管理页面
+    await page.goto('/product');
     
-    await page.waitForSelector('.el-button:has-text("返回")');
+    // 输入搜索关键词
+    await page.fill('[data-testid="product-name-search-input"] input', 'A型');
+    await page.click('[data-testid="product-search-btn"]');
     
-    await page.click('.el-button:has-text("返回")');
+    // 等待搜索结果
+    await page.waitForTimeout(500);
     
-    await page.waitForURL('**/product');
+    // 验证搜索结果
+    const tableRows = page.locator('.el-table__row');
+    await expect(tableRows).toHaveCount(1);
+    
+    // 重置搜索
+    await page.click('[data-testid="product-reset-btn"]');
+    await expect(tableRows).toHaveCount(5);
   });
 
-  test('产品列表 - 编辑功能应该能打开编辑对话框', async ({ page }) => {
-    await page.click('text=产品管理');
+  test('用户可以新增产品', async ({ page }) => {
+    // 导航到产品管理页面
+    await page.goto('/product');
     
-    await page.waitForSelector('.el-table');
+    // 点击新增产品按钮
+    await page.click('[data-testid="add-product-btn"]');
     
-    const firstRow = page.locator('.el-table__row').first();
-    await firstRow.locator('button:has-text("编辑")').click();
+    // 验证对话框打开
+    await expect(page.locator('[data-testid="product-dialog"]')).toBeVisible();
     
-    const dialog = page.locator('.el-dialog');
-    await expect(dialog).toBeVisible();
+    // 填写表单
+    await page.fill('[data-testid="product-name-input"] input', '测试产品');
+    await page.fill('[data-testid="product-category-input"] input', '测试分类');
+    await page.fill('[data-testid="product-unit-input"] input', '个');
+    await page.fill('[data-testid="product-spec-input"] input', '测试规格');
+    await page.fill('[data-testid="product-price-input"] input', '100');
+    await page.fill('[data-testid="product-cost-input"] input', '50');
     
-    const dialogTitle = await page.locator('.el-dialog__title').textContent();
-    expect(dialogTitle).toContain('编辑产品');
+    // 提交表单
+    await page.click('[data-testid="product-dialog-submit-btn"]');
     
-    const form = page.locator('.el-dialog .el-form');
-    await expect(form).toBeVisible();
+    // 验证成功提示
+    const successMessage = page.locator('.el-message--success');
+    await expect(successMessage).toBeVisible();
+    
+    // 验证新产品出现在列表中
+    const tableRows = page.locator('.el-table__row');
+    await expect(tableRows).toHaveCount(6);
   });
 
-  test('产品列表 - 删除功能应该显示确认对话框', async ({ page }) => {
-    await page.click('text=产品管理');
+  test('用户可以编辑产品', async ({ page }) => {
+    // 导航到产品管理页面
+    await page.goto('/product');
     
-    await page.waitForSelector('.el-table');
+    // 点击第一个产品的编辑按钮
+    await page.click('[data-testid="edit-product-btn-1"]');
     
-    const firstRow = page.locator('.el-table__row').first();
-    await firstRow.locator('button:has-text("删除")').click();
+    // 验证对话框打开
+    await expect(page.locator('[data-testid="product-dialog"]')).toBeVisible();
     
-    const confirmBox = page.locator('.el-message-box');
-    await expect(confirmBox).toBeVisible();
+    // 修改产品名称
+    await page.fill('[data-testid="product-name-input"] input', '修改后的产品名称');
     
-    const message = await page.locator('.el-message-box__message').textContent();
-    expect(message).toContain('删除');
+    // 提交表单
+    await page.click('[data-testid="product-dialog-submit-btn"]');
+    
+    // 验证成功提示
+    const successMessage = page.locator('.el-message--success');
+    await expect(successMessage).toBeVisible();
+  });
+
+  test('用户可以查看产品详情', async ({ page }) => {
+    // 导航到产品管理页面
+    await page.goto('/product');
+    
+    // 点击第一个产品的查看按钮
+    await page.click('[data-testid="view-product-btn-1"]');
+    
+    // 验证页面跳转到详情页
+    await expect(page).toHaveURL(/\/product\/1/);
+    
+    // 验证详情页内容
+    await expect(page.locator('[data-testid="product-detail-page"]')).toBeVisible();
+    await expect(page.locator('[data-testid="product-detail-descriptions"]')).toContainText('A型智能传感器');
+    
+    // 返回列表
+    await page.click('[data-testid="product-detail-back-btn"]');
+    await expect(page).toHaveURL(/\/product/);
+  });
+
+  test('用户可以删除产品', async ({ page }) => {
+    // 导航到产品管理页面
+    await page.goto('/product');
+    
+    // 点击最后一个产品的删除按钮
+    await page.click('[data-testid="delete-product-btn-5"]');
+    
+    // 确认删除
+    await page.click('button:has-text("确定")');
+    
+    // 验证成功提示
+    const successMessage = page.locator('.el-message--success');
+    await expect(successMessage).toBeVisible();
+    
+    // 验证产品已被删除
+    const tableRows = page.locator('.el-table__row');
+    await expect(tableRows).toHaveCount(4);
   });
 });
