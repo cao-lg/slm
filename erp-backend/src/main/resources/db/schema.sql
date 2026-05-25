@@ -78,7 +78,8 @@ CREATE TABLE IF NOT EXISTS `warehouse` (
 CREATE TABLE IF NOT EXISTS `inventory` (
     `InventoryID` INT AUTO_INCREMENT PRIMARY KEY,
     `WarehouseID` INT NOT NULL,
-    `ProductID` INT NOT NULL,
+    `ProductID` INT,
+    `MaterialID` INT,
     `Quantity` DECIMAL(12,2) DEFAULT 0,
     `UnitCost` DECIMAL(12,2) DEFAULT 0,
     `Location` VARCHAR(100),
@@ -164,8 +165,10 @@ CREATE TABLE IF NOT EXISTS `receivable` (
     `ReceivedAmount` DECIMAL(12,2) DEFAULT 0,
     `PendingAmount` DECIMAL(12,2) DEFAULT 0,
     `DueDate` DATETIME,
-    `Status` VARCHAR(20) DEFAULT 'pending',
+    `Status` VARCHAR(20) DEFAULT 'unpaid',
     `Remark` VARCHAR(500),
+    `PaymentMethod` VARCHAR(50),
+    `LastPaymentDate` DATETIME,
     `Creator` VARCHAR(100),
     `CreateDate` DATETIME DEFAULT CURRENT_TIMESTAMP,
     `UpdateDate` DATETIME
@@ -180,8 +183,10 @@ CREATE TABLE IF NOT EXISTS `payable` (
     `PaidAmount` DECIMAL(12,2) DEFAULT 0,
     `PendingAmount` DECIMAL(12,2) DEFAULT 0,
     `DueDate` DATETIME,
-    `Status` VARCHAR(20) DEFAULT 'pending',
+    `Status` VARCHAR(20) DEFAULT 'unpaid',
     `Remark` VARCHAR(500),
+    `PaymentMethod` VARCHAR(50),
+    `LastPaymentDate` DATETIME,
     `Creator` VARCHAR(100),
     `CreateDate` DATETIME DEFAULT CURRENT_TIMESTAMP,
     `UpdateDate` DATETIME

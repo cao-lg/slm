@@ -19,12 +19,16 @@ public class PurchaseOrderServiceImpl extends ServiceImpl<PurchaseOrderMapper, P
     private SupplierService supplierService;
 
     @Override
-    public Page<PurchaseOrder> getPurchaseOrderPage(Integer page, Integer pageSize, String supplierName) {
+    public Page<PurchaseOrder> getPurchaseOrderPage(Integer page, Integer pageSize, String supplierName, String status) {
         Page<PurchaseOrder> pageParam = new Page<>(page, pageSize);
         LambdaQueryWrapper<PurchaseOrder> wrapper = new LambdaQueryWrapper<>();
         
         if (StringUtils.isNotBlank(supplierName)) {
-            wrapper.like(PurchaseOrder::getOrderNo, supplierName);
+            wrapper.like(PurchaseOrder::getPoNo, supplierName);
+        }
+        
+        if (StringUtils.isNotBlank(status)) {
+            wrapper.eq(PurchaseOrder::getStatus, status);
         }
         
         wrapper.orderByDesc(PurchaseOrder::getCreateDate);

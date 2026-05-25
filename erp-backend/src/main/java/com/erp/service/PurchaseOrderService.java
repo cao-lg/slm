@@ -5,5 +5,5 @@ import com.erp.entity.PurchaseOrder;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 public interface PurchaseOrderService extends IService<PurchaseOrder> {
-    Page<PurchaseOrder> getPurchaseOrderPage(Integer page, Integer pageSize, String supplierName);
+    Page<PurchaseOrder> getPurchaseOrderPage(Integer page, Integer pageSize, String supplierName, String status);
 }

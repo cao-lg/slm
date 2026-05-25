@@ -17,6 +17,8 @@ public class Inventory implements Serializable {
 
     private Integer productID;
 
+    private Integer materialID;
+
     private BigDecimal quantity;
 
     private BigDecimal unitCost;

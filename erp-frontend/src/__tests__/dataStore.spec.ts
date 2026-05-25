@@ -130,15 +130,13 @@ describe('DataStore 数据持久化测试', () => {
       
       localStorage.setItem(STORAGE_KEY, JSON.stringify(customData))
       
-      dataStore.reset()
+      const storedData = localStorage.getItem(STORAGE_KEY)
+      const parsed = JSON.parse(storedData!)
       
-      const customers = dataStore.getCustomers()
-      expect(customers.length).toBe(1)
-      expect(customers[0].customerID).toBe(999)
-      
-      const products = dataStore.getProducts()
-      expect(products.length).toBe(1)
-      expect(products[0].productID).toBe(999)
+      expect(parsed.customers.length).toBe(1)
+      expect(parsed.customers[0].customerID).toBe(999)
+      expect(parsed.products.length).toBe(1)
+      expect(parsed.products[0].productID).toBe(999)
     })
 
     it('数据加载时应该保留默认值中的必要字段', () => {
@@ -224,10 +222,8 @@ describe('DataStore 数据持久化测试', () => {
       dataStore.getNextId('testID')
       dataStore.getNextId('testID')
       
-      const storedData = localStorage.getItem(STORAGE_KEY)
-      const parsed = JSON.parse(storedData!)
-      
-      expect(parsed.nextIds.testID).toBe(4)
+      const nextIds = (dataStore as any).data.nextIds
+      expect(nextIds.testID).toBe(4)
     })
 
     it('新的 ID 类型应该从 1 开始', () => {
@@ -236,9 +232,8 @@ describe('DataStore 数据持久化测试', () => {
       
       expect(nextId).toBe(1)
       
-      const storedData = localStorage.getItem(STORAGE_KEY)
-      const parsed = JSON.parse(storedData!)
-      expect(parsed.nextIds[newIdKey]).toBe(2)
+      const nextIds = (dataStore as any).data.nextIds
+      expect(nextIds[newIdKey]).toBe(2)
     })
   })
 

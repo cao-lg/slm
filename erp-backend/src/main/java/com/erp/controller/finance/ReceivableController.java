@@ -51,7 +51,7 @@ public class ReceivableController {
         receivable.setReceivedAmount(BigDecimal.ZERO);
         receivable.setPendingAmount(receivable.getTotalAmount());
         receivable.setCreateDate(LocalDateTime.now());
-        receivable.setStatus("pending");
+        receivable.setStatus("unpaid");
         
         receivableService.save(receivable);
         return Result.success();
@@ -76,8 +76,8 @@ public class ReceivableController {
     }
 
     @PutMapping("/{id}/verify")
-    public Result<Void> verify(@PathVariable Integer id, @RequestParam BigDecimal amount, @RequestParam(required = false) String remark) {
-        boolean success = receivableService.verifyReceivable(id, amount, remark);
+    public Result<Void> verify(@PathVariable Integer id, @RequestParam BigDecimal amount, @RequestParam(required = false) String paymentDate, @RequestParam(required = false) String paymentMethod, @RequestParam(required = false) String remark) {
+        boolean success = receivableService.verifyReceivable(id, amount, paymentDate, paymentMethod, remark);
         if (!success) {
             return Result.error("核销失败");
         }

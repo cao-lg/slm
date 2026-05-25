@@ -22,9 +22,10 @@ public class ProductController {
     public Result<PageResult<Product>> getList(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer pageSize,
-            @RequestParam(required = false) String productName) {
+            @RequestParam(required = false) String productName,
+            @RequestParam(required = false) String category) {
         
-        Page<Product> pageResult = productService.getProductPage(page, pageSize, productName);
+        Page<Product> pageResult = productService.getProductPage(page, pageSize, productName, category);
         PageResult<Product> result = new PageResult<>();
         result.setList(pageResult.getRecords());
         result.setTotal(pageResult.getTotal());

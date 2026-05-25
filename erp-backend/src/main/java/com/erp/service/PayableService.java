@@ -8,5 +8,5 @@ import java.math.BigDecimal;
 public interface PayableService extends IService<Payable> {
     Page<Payable> getPayablePage(Integer page, Integer pageSize, String payableNo, String supplierName, String status);
     
-    boolean verifyPayable(Integer payableID, BigDecimal amount, String remark);
+    boolean verifyPayable(Integer payableID, BigDecimal amount, String paymentDate, String paymentMethod, String remark);
 }

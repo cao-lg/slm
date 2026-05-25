@@ -31,6 +31,10 @@ public class Payable implements Serializable {
 
     private String remark;
 
+    private String paymentMethod;
+
+    private LocalDateTime lastPaymentDate;
+
     private String creator;
 
     @TableField(fill = FieldFill.INSERT)

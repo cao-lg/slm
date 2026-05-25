@@ -25,6 +25,8 @@ public class Quotation implements Serializable {
 
     private String status;
 
+    private String remark;
+
     private String creator;
 
     @TableField(fill = FieldFill.INSERT)

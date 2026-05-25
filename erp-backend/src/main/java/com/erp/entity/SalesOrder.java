@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
 @TableName("sales_order")
 public class SalesOrder implements Serializable {
 
-    @TableId(value = "OrderID", type = IdType.AUTO)
-    private Integer orderID;
+    @TableId(value = "SoID", type = IdType.AUTO)
+    private Integer soID;
 
     private String orderNo;
 

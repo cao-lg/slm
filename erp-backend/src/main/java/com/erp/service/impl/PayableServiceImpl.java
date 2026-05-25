@@ -11,6 +11,7 @@ import com.erp.service.PurchaseOrderService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -38,27 +39,49 @@ public class PayableServiceImpl extends ServiceImpl<PayableMapper, Payable> impl
     }
 
     @Override
-    public boolean verifyPayable(Integer payableID, BigDecimal amount, String remark) {
+    @Transactional(rollbackFor = Exception.class)
+    public boolean verifyPayable(Integer payableID, BigDecimal amount, String paymentDate, String paymentMethod, String remark) {
         Payable payable = this.getById(payableID);
         if (payable == null) {
             return false;
         }
         
+        // 验证核销金额有效性
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            return false;
+        }
+        if (amount.compareTo(payable.getPendingAmount()) > 0) {
+            return false;
+        }
+
         BigDecimal newPaidAmount = payable.getPaidAmount().add(amount);
         BigDecimal pendingAmount = payable.getTotalAmount().subtract(newPaidAmount);
-        
+
         payable.setPaidAmount(newPaidAmount);
         payable.setPendingAmount(pendingAmount.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : pendingAmount);
         payable.setUpdateDate(LocalDateTime.now());
-        
+        if (StringUtils.isNotBlank(paymentDate)) {
+            // 兼容处理只有日期没有时间的情况
+            if (paymentDate.length() == 10) {
+                payable.setLastPaymentDate(LocalDateTime.parse(paymentDate + "T00:00:00"));
+            } else {
+                payable.setLastPaymentDate(LocalDateTime.parse(paymentDate));
+            }
+        } else {
+            payable.setLastPaymentDate(LocalDateTime.now());
+        }
+        if (StringUtils.isNotBlank(paymentMethod)) {
+            payable.setPaymentMethod(paymentMethod);
+        }
+
         if (pendingAmount.compareTo(BigDecimal.ZERO) <= 0) {
-            payable.setStatus("completed");
-        } else if ("pending".equals(payable.getStatus())) {
+            payable.setStatus("paid");
+        } else if ("unpaid".equals(payable.getStatus()) || "partial".equals(payable.getStatus())) {
             payable.setStatus("partial");
         }
-        
+
         this.updateById(payable);
-        
+
         PurchaseOrder purchaseOrder = purchaseOrderService.getById(payable.getPurchaseOrderID());
         if (purchaseOrder != null && "approved".equals(purchaseOrder.getStatus())) {
             if (pendingAmount.compareTo(BigDecimal.ZERO) <= 0) {
@@ -67,7 +90,7 @@ public class PayableServiceImpl extends ServiceImpl<PayableMapper, Payable> impl
                 purchaseOrderService.updateById(purchaseOrder);
             }
         }
-        
+
         return true;
     }
 }

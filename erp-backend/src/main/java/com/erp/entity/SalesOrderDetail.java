@@ -12,7 +12,7 @@ public class SalesOrderDetail implements Serializable {
     @TableId(value = "DetailID", type = IdType.AUTO)
     private Integer detailID;
 
-    private Integer orderID;
+    private Integer soID;
 
     private Integer productID;
     

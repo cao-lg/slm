@@ -2,12 +2,19 @@ package com.erp.controller.sales;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.erp.common.Result;
+import com.erp.entity.Customer;
+import com.erp.entity.Product;
+import com.erp.entity.Receivable;
 import com.erp.entity.SalesOrder;
 import com.erp.entity.SalesOrderDetail;
+import com.erp.service.CustomerService;
+import com.erp.service.ProductService;
+import com.erp.service.ReceivableService;
 import com.erp.service.SalesOrderService;
 import com.erp.service.SalesOrderDetailService;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -23,6 +30,15 @@ public class SalesOrderController {
 
     @Autowired
     private SalesOrderDetailService salesOrderDetailService;
+
+    @Autowired
+    private ProductService productService;
+
+    @Autowired
+    private CustomerService customerService;
+
+    @Autowired
+    private ReceivableService receivableService;
 
     @GetMapping
     public Result<PageResult<SalesOrder>> getList(
@@ -59,19 +75,61 @@ public class SalesOrderController {
     }
 
     @PostMapping
+    @Transactional(rollbackFor = Exception.class)
     public Result<Void> add(@RequestBody SalesOrderRequest request) {
         SalesOrder order = request.getOrder();
+        
+        if (order == null) {
+            return Result.error("订单信息不能为空");
+        }
+        if (order.getCustomerID() == null) {
+            return Result.error("客户不能为空");
+        }
+        if (request.getDetails() == null || request.getDetails().isEmpty()) {
+            return Result.error("订单明细至少包含一个产品");
+        }
+        
         order.setOrderNo("XS" + System.currentTimeMillis());
         order.setCreateDate(LocalDateTime.now());
         order.setStatus("pending");
         
         BigDecimal totalAmount = BigDecimal.ZERO;
+        BigDecimal totalCost = BigDecimal.ZERO;
+        BigDecimal totalProfit = BigDecimal.ZERO;
+        BigDecimal totalQuantity = BigDecimal.ZERO;
+        
         for (SalesOrderDetail detail : request.getDetails()) {
-            BigDecimal amount = detail.getQuantity().multiply(detail.getPrice());
+            if (detail.getProductID() == null) {
+                return Result.error("产品不能为空");
+            }
+            if (detail.getQuantity() == null || detail.getQuantity().compareTo(BigDecimal.ZERO) <= 0) {
+                return Result.error("数量必须大于0");
+            }
+            if (detail.getUnitPrice() == null || detail.getUnitPrice().compareTo(BigDecimal.ZERO) < 0) {
+                return Result.error("单价不能为负数");
+            }
+            
+            BigDecimal amount = detail.getQuantity().multiply(detail.getUnitPrice());
             detail.setAmount(amount);
             totalAmount = totalAmount.add(amount);
+            totalQuantity = totalQuantity.add(detail.getQuantity());
+            
+            Product product = productService.getById(detail.getProductID());
+            if (product != null && product.getCost() != null) {
+                detail.setCostPrice(product.getCost());
+                BigDecimal profit = detail.getUnitPrice().subtract(product.getCost()).multiply(detail.getQuantity());
+                detail.setProfit(profit);
+                totalCost = totalCost.add(product.getCost().multiply(detail.getQuantity()));
+                totalProfit = totalProfit.add(profit);
+            } else {
+                return Result.error("产品成本信息不完整");
+            }
         }
+        
         order.setTotalAmount(totalAmount);
+        order.setTotalQuantity(totalQuantity);
+        order.setTotalCost(totalCost);
+        order.setTotalProfit(totalProfit);
         
         salesOrderService.save(order);
         
@@ -90,12 +148,31 @@ public class SalesOrderController {
         order.setUpdateDate(LocalDateTime.now());
         
         BigDecimal totalAmount = BigDecimal.ZERO;
+        BigDecimal totalCost = BigDecimal.ZERO;
+        BigDecimal totalProfit = BigDecimal.ZERO;
+        BigDecimal totalQuantity = BigDecimal.ZERO;
+        
         for (SalesOrderDetail detail : request.getDetails()) {
-            BigDecimal amount = detail.getQuantity().multiply(detail.getPrice());
+            BigDecimal amount = detail.getQuantity().multiply(detail.getUnitPrice());
             detail.setAmount(amount);
             totalAmount = totalAmount.add(amount);
+            totalQuantity = totalQuantity.add(detail.getQuantity());
+            
+            // 从产品表获取成本并计算利润
+            Product product = productService.getById(detail.getProductID());
+            if (product != null) {
+                detail.setCostPrice(product.getCost());
+                BigDecimal profit = detail.getUnitPrice().subtract(product.getCost()).multiply(detail.getQuantity());
+                detail.setProfit(profit);
+                totalCost = totalCost.add(product.getCost().multiply(detail.getQuantity()));
+                totalProfit = totalProfit.add(profit);
+            }
         }
+        
         order.setTotalAmount(totalAmount);
+        order.setTotalQuantity(totalQuantity);
+        order.setTotalCost(totalCost);
+        order.setTotalProfit(totalProfit);
         
         salesOrderService.updateById(order);
         
@@ -119,11 +196,14 @@ public class SalesOrderController {
     }
 
     @PutMapping("/{id}/status")
+    @Transactional(rollbackFor = Exception.class)
     public Result<Void> updateStatus(@PathVariable Integer id, @RequestParam String status) {
         SalesOrder order = salesOrderService.getById(id);
         if (order == null) {
             return Result.error("订单不存在");
         }
+        
+        String oldStatus = order.getStatus();
         
         if ("producing".equals(status) && !"approved".equals(order.getStatus())) {
             return Result.error("只有已审核的订单才能开始生产");
@@ -133,6 +213,34 @@ public class SalesOrderController {
         }
         if ("completed".equals(status) && !"shipped".equals(order.getStatus())) {
             return Result.error("只有已发货的订单才能完成");
+        }
+        
+        // 信用额度管理：审核时占用，完成或取消时释放
+        if ("approved".equals(status) && !"approved".equals(oldStatus)) {
+            boolean creditOk = customerService.checkCreditLimit(order.getCustomerID(), order.getTotalAmount());
+            if (!creditOk) {
+                return Result.error("客户信用额度不足");
+            }
+            customerService.updateUsedCredit(order.getCustomerID(), order.getTotalAmount(), true);
+            
+            // 自动生成应收款单
+            Customer customer = customerService.getById(order.getCustomerID());
+            Receivable receivable = new Receivable();
+            receivable.setReceivableNo("AR" + System.currentTimeMillis());
+            receivable.setCustomerID(order.getCustomerID());
+            receivable.setSalesOrderID(order.getSoID());
+            receivable.setTotalAmount(order.getTotalAmount());
+            receivable.setReceivedAmount(java.math.BigDecimal.ZERO);
+            receivable.setPendingAmount(order.getTotalAmount());
+            receivable.setStatus("unpaid");
+            receivable.setCreateDate(LocalDateTime.now());
+            if (customer != null && customer.getPaymentDays() != null) {
+                receivable.setDueDate(LocalDateTime.now().plusDays(customer.getPaymentDays()));
+            }
+            receivableService.save(receivable);
+        }
+        if (("completed".equals(status) || "cancelled".equals(status)) && "approved".equals(oldStatus)) {
+            customerService.updateUsedCredit(order.getCustomerID(), order.getTotalAmount(), false);
         }
         
         order.setStatus(status);

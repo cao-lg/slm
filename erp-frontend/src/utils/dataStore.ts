@@ -21,6 +21,13 @@ interface DataStore {
   warehouseTransfers: any[]
   warehouseReturns: any[]
   receipts: any[]
+  users: any[]
+  messages: any[]
+  operationLogs: any[]
+  systemConfigs: any[]
+  expenses: any[]
+  recipes: any[]
+  inventoryRecords: any[]
   nextIds: Record<string, number>
 }
 
@@ -40,6 +47,13 @@ const DEFAULT_DATA: DataStore = {
   warehouseTransfers: DEMO_ACCOUNT_DATA.warehouseTransfers,
   warehouseReturns: DEMO_ACCOUNT_DATA.warehouseReturns,
   receipts: DEMO_ACCOUNT_DATA.receipts,
+  users: DEMO_ACCOUNT_DATA.users,
+  messages: DEMO_ACCOUNT_DATA.messages,
+  operationLogs: DEMO_ACCOUNT_DATA.operationLogs,
+  systemConfigs: DEMO_ACCOUNT_DATA.systemConfigs,
+  expenses: DEMO_ACCOUNT_DATA.expenses,
+  recipes: DEMO_ACCOUNT_DATA.recipes,
+  inventoryRecords: DEMO_ACCOUNT_DATA.inventoryRecords,
   nextIds: DEMO_ACCOUNT_DATA.nextIds
 }
 
@@ -332,6 +346,261 @@ class DataStoreManager {
   // 获取当前数据
   getCurrentData() {
     return { ...this.data }
+  }
+
+  // 用户相关
+  getUsers() {
+    return this.data.users
+  }
+
+  getUser(id: number) {
+    return this.data.users.find(u => u.id === id)
+  }
+
+  addUser(user: any) {
+    user.id = this.getNextId('userId')
+    this.data.users.push(user)
+    this.saveToStorage()
+    return user
+  }
+
+  updateUser(id: number, updates: any) {
+    const index = this.data.users.findIndex(u => u.id === id)
+    if (index !== -1) {
+      this.data.users[index] = { ...this.data.users[index], ...updates }
+      this.saveToStorage()
+    }
+  }
+
+  deleteUser(id: number) {
+    this.data.users = this.data.users.filter(u => u.id !== id)
+    this.saveToStorage()
+  }
+
+  // 消息相关
+  getMessages() {
+    return this.data.messages
+  }
+
+  getMessage(messageID: number) {
+    return this.data.messages.find(m => m.messageID === messageID)
+  }
+
+  addMessage(message: any) {
+    message.messageID = this.getNextId('messageId')
+    this.data.messages.push(message)
+    this.saveToStorage()
+    return message
+  }
+
+  updateMessage(messageID: number, updates: any) {
+    const index = this.data.messages.findIndex(m => m.messageID === messageID)
+    if (index !== -1) {
+      this.data.messages[index] = { ...this.data.messages[index], ...updates }
+      this.saveToStorage()
+    }
+  }
+
+  deleteMessage(messageID: number) {
+    this.data.messages = this.data.messages.filter(m => m.messageID !== messageID)
+    this.saveToStorage()
+  }
+
+  // 系统配置相关
+  getSystemConfigs() {
+    return this.data.systemConfigs
+  }
+
+  getSystemConfig(configKey: string) {
+    return this.data.systemConfigs.find(c => c.configKey === configKey)
+  }
+
+  updateSystemConfig(configID: number, updates: any) {
+    const index = this.data.systemConfigs.findIndex(c => c.configID === configID)
+    if (index !== -1) {
+      this.data.systemConfigs[index] = { ...this.data.systemConfigs[index], ...updates }
+      this.saveToStorage()
+    }
+  }
+
+  // 操作日志相关
+  getOperationLogs() {
+    return this.data.operationLogs
+  }
+
+  getOperationLog(logID: number) {
+    return this.data.operationLogs.find(l => l.logID === logID)
+  }
+
+  addOperationLog(log: any) {
+    log.logID = this.getNextId('logId')
+    this.data.operationLogs.push(log)
+    this.saveToStorage()
+    return log
+  }
+
+  deleteOperationLog(logID: number) {
+    this.data.operationLogs = this.data.operationLogs.filter(l => l.logID !== logID)
+    this.saveToStorage()
+  }
+
+  clearOperationLogs() {
+    this.data.operationLogs = []
+    this.saveToStorage()
+  }
+
+  // 费用相关
+  getExpenses() {
+    return this.data.expenses
+  }
+
+  getExpense(expenseID: number) {
+    return this.data.expenses.find(e => e.expenseID === expenseID)
+  }
+
+  addExpense(expense: any) {
+    expense.expenseID = this.getNextId('expenseId')
+    this.data.expenses.push(expense)
+    this.saveToStorage()
+    return expense
+  }
+
+  updateExpense(expenseID: number, updates: any) {
+    const index = this.data.expenses.findIndex(e => e.expenseID === expenseID)
+    if (index !== -1) {
+      this.data.expenses[index] = { ...this.data.expenses[index], ...updates }
+      this.saveToStorage()
+    }
+  }
+
+  deleteExpense(expenseID: number) {
+    this.data.expenses = this.data.expenses.filter(e => e.expenseID !== expenseID)
+    this.saveToStorage()
+  }
+
+  // 仓库发货单相关
+  getWarehouseDeliveries() {
+    return this.data.warehouseDeliveries
+  }
+
+  getWarehouseDelivery(deliveryID: number) {
+    return this.data.warehouseDeliveries.find(d => d.deliveryID === deliveryID)
+  }
+
+  addWarehouseDelivery(delivery: any) {
+    delivery.deliveryID = this.getNextId('deliveryID')
+    this.data.warehouseDeliveries.push(delivery)
+    this.saveToStorage()
+    return delivery
+  }
+
+  updateWarehouseDelivery(deliveryID: number, updates: any) {
+    const index = this.data.warehouseDeliveries.findIndex(d => d.deliveryID === deliveryID)
+    if (index !== -1) {
+      this.data.warehouseDeliveries[index] = { ...this.data.warehouseDeliveries[index], ...updates }
+      this.saveToStorage()
+    }
+  }
+
+  // 仓库领料单相关
+  getWarehousePicks() {
+    return this.data.warehousePicks
+  }
+
+  getWarehousePick(pickID: number) {
+    return this.data.warehousePicks.find(p => p.pickID === pickID)
+  }
+
+  addWarehousePick(pick: any) {
+    pick.pickID = this.getNextId('pickID')
+    this.data.warehousePicks.push(pick)
+    this.saveToStorage()
+    return pick
+  }
+
+  updateWarehousePick(pickID: number, updates: any) {
+    const index = this.data.warehousePicks.findIndex(p => p.pickID === pickID)
+    if (index !== -1) {
+      this.data.warehousePicks[index] = { ...this.data.warehousePicks[index], ...updates }
+      this.saveToStorage()
+    }
+  }
+
+  // 仓库调拨单相关
+  getWarehouseTransfers() {
+    return this.data.warehouseTransfers
+  }
+
+  getWarehouseTransfer(transferID: number) {
+    return this.data.warehouseTransfers.find(t => t.transferID === transferID)
+  }
+
+  addWarehouseTransfer(transfer: any) {
+    transfer.transferID = this.getNextId('transferID')
+    this.data.warehouseTransfers.push(transfer)
+    this.saveToStorage()
+    return transfer
+  }
+
+  updateWarehouseTransfer(transferID: number, updates: any) {
+    const index = this.data.warehouseTransfers.findIndex(t => t.transferID === transferID)
+    if (index !== -1) {
+      this.data.warehouseTransfers[index] = { ...this.data.warehouseTransfers[index], ...updates }
+      this.saveToStorage()
+    }
+  }
+
+  // 仓库退货单相关
+  getWarehouseReturns() {
+    return this.data.warehouseReturns
+  }
+
+  getWarehouseReturn(returnID: number) {
+    return this.data.warehouseReturns.find(r => r.returnID === returnID)
+  }
+
+  addWarehouseReturn(ret: any) {
+    ret.returnID = this.getNextId('returnID')
+    this.data.warehouseReturns.push(ret)
+    this.saveToStorage()
+    return ret
+  }
+
+  updateWarehouseReturn(returnID: number, updates: any) {
+    const index = this.data.warehouseReturns.findIndex(r => r.returnID === returnID)
+    if (index !== -1) {
+      this.data.warehouseReturns[index] = { ...this.data.warehouseReturns[index], ...updates }
+      this.saveToStorage()
+    }
+  }
+
+  // 配方相关
+  getRecipes() {
+    return this.data.recipes
+  }
+
+  getRecipe(recipeID: number) {
+    return this.data.recipes.find(r => r.recipeID === recipeID)
+  }
+
+  addRecipe(recipe: any) {
+    recipe.recipeID = this.getNextId('recipeId')
+    this.data.recipes.push(recipe)
+    this.saveToStorage()
+    return recipe
+  }
+
+  updateRecipe(recipeID: number, updates: any) {
+    const index = this.data.recipes.findIndex(r => r.recipeID === recipeID)
+    if (index !== -1) {
+      this.data.recipes[index] = { ...this.data.recipes[index], ...updates }
+      this.saveToStorage()
+    }
+  }
+
+  deleteRecipe(recipeID: number) {
+    this.data.recipes = this.data.recipes.filter(r => r.recipeID !== recipeID)
+    this.saveToStorage()
   }
 
   // 数据验证

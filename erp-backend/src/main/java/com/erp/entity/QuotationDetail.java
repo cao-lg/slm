@@ -16,6 +16,14 @@ public class QuotationDetail implements Serializable {
 
     private Integer productID;
     
+    private String productName;
+    
+    private String productCode;
+    
+    private String specification;
+    
+    private String unit;
+    
     private String customerProductCode;
     
     private String customerProductName;

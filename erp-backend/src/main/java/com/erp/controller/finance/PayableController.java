@@ -50,7 +50,7 @@ public class PayableController {
         payable.setPaidAmount(BigDecimal.ZERO);
         payable.setPendingAmount(payable.getTotalAmount());
         payable.setCreateDate(LocalDateTime.now());
-        payable.setStatus("pending");
+        payable.setStatus("unpaid");
         
         payableService.save(payable);
         return Result.success();
@@ -75,8 +75,8 @@ public class PayableController {
     }
 
     @PutMapping("/{id}/verify")
-    public Result<Void> verify(@PathVariable Integer id, @RequestParam BigDecimal amount, @RequestParam(required = false) String remark) {
-        boolean success = payableService.verifyPayable(id, amount, remark);
+    public Result<Void> verify(@PathVariable Integer id, @RequestParam BigDecimal amount, @RequestParam(required = false) String paymentDate, @RequestParam(required = false) String paymentMethod, @RequestParam(required = false) String remark) {
+        boolean success = payableService.verifyPayable(id, amount, paymentDate, paymentMethod, remark);
         if (!success) {
             return Result.error("核销失败");
         }

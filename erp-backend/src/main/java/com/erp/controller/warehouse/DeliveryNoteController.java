@@ -1,5 +1,6 @@
 package com.erp.controller.warehouse;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.erp.common.Result;
 import com.erp.entity.DeliveryNote;
@@ -12,6 +13,7 @@ import com.erp.service.SalesOrderService;
 import com.erp.service.SalesOrderDetailService;
 import com.erp.service.InventoryService;
 import com.erp.entity.Inventory;
+import java.time.LocalDateTime;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -66,7 +68,7 @@ public class DeliveryNoteController {
     @GetMapping("/{id}/details")
     public Result<List<DeliveryNoteDetail>> getDetails(@PathVariable Integer id) {
         List<DeliveryNoteDetail> details = deliveryNoteDetailService.list(
-            new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<DeliveryNoteDetail>()
+            new LambdaQueryWrapper<DeliveryNoteDetail>()
                 .eq(DeliveryNoteDetail::getDeliveryID, id)
         );
         return Result.success(details);
@@ -105,7 +107,7 @@ public class DeliveryNoteController {
         deliveryNoteService.updateById(note);
         
         deliveryNoteDetailService.remove(
-            new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<DeliveryNoteDetail>()
+            new LambdaQueryWrapper<DeliveryNoteDetail>()
                 .eq(DeliveryNoteDetail::getDeliveryID, id)
         );
         
@@ -122,7 +124,7 @@ public class DeliveryNoteController {
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Integer id) {
         deliveryNoteDetailService.remove(
-            new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<DeliveryNoteDetail>()
+            new LambdaQueryWrapper<DeliveryNoteDetail>()
                 .eq(DeliveryNoteDetail::getDeliveryID, id)
         );
         deliveryNoteService.removeById(id);
@@ -130,6 +132,7 @@ public class DeliveryNoteController {
     }
 
     @PutMapping("/{id}/ship")
+    @Transactional(rollbackFor = Exception.class)
     public Result<Void> ship(@PathVariable Integer id) {
         DeliveryNote note = deliveryNoteService.getById(id);
         if (note == null) {
@@ -138,6 +141,30 @@ public class DeliveryNoteController {
         
         if (!"pending".equals(note.getStatus())) {
             return Result.error("只有待发货的发货单才能发货");
+        }
+        
+        List<DeliveryNoteDetail> details = deliveryNoteDetailService.list(
+            new LambdaQueryWrapper<DeliveryNoteDetail>()
+                .eq(DeliveryNoteDetail::getDeliveryID, id)
+        );
+        
+        for (DeliveryNoteDetail detail : details) {
+            LambdaQueryWrapper<Inventory> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(Inventory::getWarehouseID, note.getWarehouseID())
+                  .eq(Inventory::getProductID, detail.getProductID());
+            Inventory existing = inventoryService.getOne(wrapper);
+            
+            if (existing == null) {
+                return Result.error("库存不足，产品ID: " + detail.getProductID());
+            }
+            
+            if (existing.getQuantity().compareTo(detail.getQuantity()) < 0) {
+                return Result.error("库存不足，产品ID: " + detail.getProductID());
+            }
+            
+            existing.setQuantity(existing.getQuantity().subtract(detail.getQuantity()));
+            existing.setUpdateDate(LocalDateTime.now());
+            inventoryService.updateById(existing);
         }
         
         SalesOrder salesOrder = salesOrderService.getById(note.getSoID());
@@ -155,7 +182,7 @@ public class DeliveryNoteController {
     @GetMapping("/sales-orders")
     public Result<List<SalesOrder>> getSalesOrders() {
         List<SalesOrder> orders = salesOrderService.list(
-            new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<SalesOrder>()
+            new LambdaQueryWrapper<SalesOrder>()
                 .eq(SalesOrder::getStatus, "approved")
                 .or()
                 .eq(SalesOrder::getStatus, "producing")
@@ -166,7 +193,7 @@ public class DeliveryNoteController {
     @GetMapping("/sales-orders/{id}/details")
     public Result<List<SalesOrderDetail>> getSalesOrderDetails(@PathVariable Integer id) {
         List<SalesOrderDetail> details = salesOrderDetailService.list(
-            new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<SalesOrderDetail>()
+            new LambdaQueryWrapper<SalesOrderDetail>()
                 .eq(SalesOrderDetail::getSoID, id)
         );
         return Result.success(details);

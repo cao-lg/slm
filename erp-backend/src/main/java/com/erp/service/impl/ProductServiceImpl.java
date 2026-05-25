@@ -13,12 +13,15 @@ import org.springframework.stereotype.Service;
 public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> implements ProductService {
 
     @Override
-    public Page<Product> getProductPage(Integer page, Integer pageSize, String productName) {
+    public Page<Product> getProductPage(Integer page, Integer pageSize, String productName, String category) {
         Page<Product> pageParam = new Page<>(page, pageSize);
         LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
         
         if (StringUtils.isNotBlank(productName)) {
             wrapper.like(Product::getProductName, productName);
+        }
+        if (StringUtils.isNotBlank(category)) {
+            wrapper.eq(Product::getCategory, category);
         }
         
         wrapper.orderByDesc(Product::getCreateDate);

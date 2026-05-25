@@ -642,7 +642,315 @@ export const DEMO_ACCOUNT_DATA = {
     }
   ],
 
-  warehouseReturns: [],
+  // 系统管理模块
+  users: [
+    { id: 1, userName: 'admin', realName: '管理员', role: 'admin', department: '管理部', position: '系统管理员', email: 'admin@example.com', phone: '13800138001', status: 1, createDate: '2024-01-01 00:00:00', lastLoginDate: '2025-05-20 10:30:00' },
+    { id: 2, userName: 'manager', realName: '陈立国', role: 'manager', department: '销售部', position: '销售经理', email: 'manager@example.com', phone: '13800138002', status: 1, createDate: '2024-01-05 00:00:00', lastLoginDate: '2025-05-20 09:15:00' },
+    { id: 3, userName: 'user01', realName: '张三', role: 'user', department: '销售部', position: '销售员', email: 'user01@example.com', phone: '13800138003', status: 1, createDate: '2024-01-10 00:00:00', lastLoginDate: '2025-05-19 18:20:00' },
+    { id: 4, userName: 'user02', realName: '李四', role: 'user', department: '采购部', position: '采购员', email: 'user02@example.com', phone: '13800138004', status: 1, createDate: '2024-01-12 00:00:00', lastLoginDate: '2025-05-20 08:45:00' },
+    { id: 5, userName: 'user03', realName: '王五', role: 'user', department: '生产部', position: '生产主管', email: 'user03@example.com', phone: '13800138005', status: 0, createDate: '2024-01-15 00:00:00', lastLoginDate: '2025-05-18 17:30:00' }
+  ],
+
+  messages: [
+    { messageID: 1, title: '系统升级通知', content: '系统将于今晚10点进行升级维护，预计持续2小时。', messageType: 1, senderID: 1, senderName: '管理员', isAll: 1, isRead: 0, publishDate: '2025-05-20 08:00:00', priority: 2, status: 1, createDate: '2025-05-20 08:00:00' },
+    { messageID: 2, title: '销售订单待处理', content: '有一笔新的销售订单需要您审批，请及时处理。', messageType: 2, senderID: 3, senderName: '张三', receiverIDs: '2', receiverNames: '陈立国', isAll: 0, isRead: 1, publishDate: '2025-05-19 15:30:00', priority: 1, status: 1, createDate: '2025-05-19 15:30:00', readDate: '2025-05-19 16:00:00' },
+    { messageID: 3, title: '月度会议通知', content: '请各部门经理于本月25日到会议室参加月度总结会议。', messageType: 3, senderID: 1, senderName: '管理员', isAll: 1, isRead: 1, publishDate: '2025-05-18 10:00:00', priority: 0, status: 1, createDate: '2025-05-18 10:00:00', readDate: '2025-05-18 11:00:00' },
+    { messageID: 4, title: '采购入库提醒', content: '有一批原材料已到货，请仓库人员及时入库。', messageType: 2, senderID: 4, senderName: '李四', receiverIDs: '1', receiverNames: '管理员', isAll: 0, isRead: 0, publishDate: '2025-05-20 09:00:00', priority: 1, status: 1, createDate: '2025-05-20 09:00:00' }
+  ],
+
+  operationLogs: [
+    { logID: 1, module: 'user', operationType: '登录', operationDesc: '用户登录系统', operatorID: 1, operatorName: '管理员', requestMethod: 'POST', requestUrl: '/api/auth/login', ipAddress: '192.168.1.100', userAgent: 'Mozilla/5.0', executionTime: 120, isSuccess: 1, operateDate: '2025-05-20 10:30:00' },
+    { logID: 2, module: 'order', operationType: '新增', operationDesc: '创建销售订单 XS202505200001', operatorID: 3, operatorName: '张三', requestMethod: 'POST', requestUrl: '/api/sales/order', requestParams: '{"customerID":1,"totalAmount":28000}', ipAddress: '192.168.1.101', userAgent: 'Mozilla/5.0', executionTime: 85, isSuccess: 1, operateDate: '2025-05-20 10:25:00' },
+    { logID: 3, module: 'warehouse', operationType: '编辑', operationDesc: '更新库存数量', operatorID: 1, operatorName: '管理员', requestMethod: 'PUT', requestUrl: '/api/warehouse/inventory', ipAddress: '192.168.1.100', userAgent: 'Mozilla/5.0', executionTime: 65, isSuccess: 1, operateDate: '2025-05-20 09:45:00' },
+    { logID: 4, module: 'product', operationType: '新增', operationDesc: '添加新产品', operatorID: 1, operatorName: '管理员', requestMethod: 'POST', requestUrl: '/api/product', ipAddress: '192.168.1.100', userAgent: 'Mozilla/5.0', executionTime: 95, isSuccess: 1, operateDate: '2025-05-19 16:30:00' },
+    { logID: 5, module: 'system', operationType: '编辑', operationDesc: '修改系统配置', operatorID: 1, operatorName: '管理员', requestMethod: 'PUT', requestUrl: '/api/system/config', ipAddress: '192.168.1.100', userAgent: 'Mozilla/5.0', executionTime: 50, isSuccess: 1, operateDate: '2025-05-19 14:20:00' },
+    { logID: 6, module: 'customer', operationType: '删除', operationDesc: '删除客户信息', operatorID: 2, operatorName: '陈立国', requestMethod: 'DELETE', requestUrl: '/api/sales/customer/5', ipAddress: '192.168.1.102', userAgent: 'Mozilla/5.0', executionTime: 30, isSuccess: 0, errorMessage: '该客户有关联订单，无法删除', operateDate: '2025-05-19 11:15:00' },
+    { logID: 7, module: 'finance', operationType: '新增', operationDesc: '创建收款记录', operatorID: 2, operatorName: '陈立国', requestMethod: 'POST', requestUrl: '/api/finance/receivable', ipAddress: '192.168.1.102', userAgent: 'Mozilla/5.0', executionTime: 78, isSuccess: 1, operateDate: '2025-05-18 15:40:00' },
+    { logID: 8, module: 'user', operationType: '登出', operationDesc: '用户退出系统', operatorID: 3, operatorName: '张三', requestMethod: 'POST', requestUrl: '/api/auth/logout', ipAddress: '192.168.1.101', userAgent: 'Mozilla/5.0', executionTime: 15, isSuccess: 1, operateDate: '2025-05-18 18:20:00' }
+  ],
+
+  systemConfigs: [
+    { configID: 1, configKey: 'themeColor', configName: '主题颜色', configValue: '#409eff', configType: 'theme', description: '系统主题颜色', sortOrder: 1, status: 1 },
+    { configID: 2, configKey: 'navMode', configName: '导航模式', configValue: 'vertical', configType: 'theme', description: '导航菜单模式', sortOrder: 2, status: 1 },
+    { configID: 3, configKey: 'navCollapse', configName: '导航默认折叠', configValue: 'true', configType: 'theme', description: '侧边导航是否默认折叠', sortOrder: 3, status: 1 },
+    { configID: 4, configKey: 'showLogo', configName: '显示Logo', configValue: 'true', configType: 'theme', description: '是否显示系统Logo', sortOrder: 4, status: 1 },
+    { configID: 5, configKey: 'pageSize', configName: '默认分页大小', configValue: '20', configType: 'display', description: '列表默认每页显示条数', sortOrder: 5, status: 1 },
+    { configID: 6, configKey: 'language', configName: '系统语言', configValue: 'zh-CN', configType: 'display', description: '系统界面语言', sortOrder: 6, status: 1 },
+    { configID: 7, configKey: 'dateFormat', configName: '日期格式', configValue: 'YYYY-MM-DD HH:mm:ss', configType: 'display', description: '日期时间显示格式', sortOrder: 7, status: 1 }
+  ],
+
+  // 完善仓库管理模块
+  warehouseDeliveries: [
+    {
+      deliveryID: 1,
+      deliveryNo: 'FH202505200001',
+      soID: 3,
+      orderNo: 'XS202505200003',
+      customerID: 4,
+      customerName: '深圳智能制造',
+      deliveryDate: '2025-05-22',
+      status: 'shipped',
+      carrier: '顺丰快递',
+      trackingNo: 'SF1234567890',
+      totalAmount: 84000.00,
+      creator: '陈立国',
+      createDate: '2025-05-22 09:00:00',
+      remark: ''
+    },
+    {
+      deliveryID: 2,
+      deliveryNo: 'FH202505200002',
+      soID: 1,
+      orderNo: 'XS202505200001',
+      customerID: 1,
+      customerName: '北京科技有限公司',
+      deliveryDate: '2025-05-30',
+      status: 'pending',
+      carrier: '',
+      trackingNo: '',
+      totalAmount: 28000.00,
+      creator: '陈立国',
+      createDate: '2025-05-25 11:00:00',
+      remark: '等待发货'
+    }
+  ],
+
+  warehousePicks: [
+    {
+      pickID: 1,
+      pickNo: 'LL202505200001',
+      productionPlanID: 1,
+      planNo: 'SC202505200001',
+      warehouseID: 3,
+      warehouseName: 'KCC-材料仓',
+      pickDate: '2025-05-20',
+      status: 'completed',
+      picker: '王五',
+      createDate: '2025-05-20 08:00:00',
+      remark: ''
+    },
+    {
+      pickID: 2,
+      pickNo: 'LL202505200002',
+      productionPlanID: 3,
+      planNo: 'SC202505200003',
+      warehouseID: 3,
+      warehouseName: 'KCC-材料仓',
+      pickDate: '2025-05-15',
+      status: 'completed',
+      picker: '张三',
+      createDate: '2025-05-15 08:00:00',
+      remark: '生产领料'
+    },
+    {
+      pickID: 3,
+      pickNo: 'LL202505200003',
+      productionPlanID: 2,
+      planNo: 'SC202505200002',
+      warehouseID: 3,
+      warehouseName: 'KCC-材料仓',
+      pickDate: '2025-05-22',
+      status: 'pending',
+      picker: '李四',
+      createDate: '2025-05-22 08:00:00',
+      remark: '等待领料'
+    }
+  ],
+
+  warehouseTransfers: [
+    {
+      transferID: 1,
+      transferNo: 'DB202505200001',
+      fromWarehouseID: 3,
+      fromWarehouseName: 'KCC-材料仓',
+      toWarehouseID: 1,
+      toWarehouseName: 'KCA-车间仓',
+      transferDate: '2025-05-21',
+      status: 'completed',
+      creator: '陈立国',
+      createDate: '2025-05-21 10:00:00',
+      remark: '生产领料'
+    },
+    {
+      transferID: 2,
+      transferNo: 'DB202505200002',
+      fromWarehouseID: 1,
+      fromWarehouseName: 'KCA-车间仓',
+      toWarehouseID: 2,
+      toWarehouseName: 'KCB-成品仓',
+      transferDate: '2025-05-18',
+      status: 'completed',
+      creator: '陈立国',
+      createDate: '2025-05-18 14:00:00',
+      remark: '生产完成入库'
+    },
+    {
+      transferID: 3,
+      transferNo: 'DB202505200003',
+      fromWarehouseID: 3,
+      fromWarehouseName: 'KCC-材料仓',
+      toWarehouseID: 1,
+      toWarehouseName: 'KCA-车间仓',
+      transferDate: '2025-05-23',
+      status: 'pending',
+      creator: '陈立国',
+      createDate: '2025-05-23 09:00:00',
+      remark: '待审批'
+    }
+  ],
+
+  warehouseReturns: [
+    {
+      returnID: 1,
+      returnNo: 'TH202505200001',
+      sourceType: 2,
+      sourceID: 1,
+      sourceNo: 'FH202505200001',
+      customerID: 4,
+      customerName: '深圳智能制造',
+      warehouseID: 2,
+      warehouseName: 'KCB-成品仓',
+      returnDate: '2025-05-24',
+      status: 'pending',
+      totalAmount: 5600.00,
+      creator: '陈立国',
+      createDate: '2025-05-24 16:00:00',
+      remark: '质量问题退货'
+    }
+  ],
+
+  inventoryRecords: [
+    { recordID: 1, inventoryID: 1, warehouseID: 2, productID: 1, productName: 'A型智能传感器', productCode: 'CP202505200001', unit: '个', spec: '精度±0.01mm，输出4-20mA', beforeQuantity: 500, changeQuantity: -100, afterQuantity: 400, changeType: 'out', relatedType: 'delivery', relatedID: 1, operator: '陈立国', operateDate: '2025-05-22 09:00:00', remark: '发货出库' },
+    { recordID: 2, inventoryID: 2, warehouseID: 2, productID: 4, productName: 'D型工业电源', productCode: 'CP202505200004', unit: '台', spec: '24V DC 10A 开关电源', beforeQuantity: 300, changeQuantity: 200, afterQuantity: 500, changeType: 'in', relatedType: 'production', relatedID: 4, operator: '王五', operateDate: '2025-05-18 14:00:00', remark: '生产入库' },
+    { recordID: 3, inventoryID: 3, warehouseID: 3, productID: 1, productName: 'PCB电路板', productCode: 'YL202505200001', unit: '块', spec: 'FR-4 双层板', beforeQuantity: 1000, changeQuantity: -200, afterQuantity: 800, changeType: 'out', relatedType: 'pick', relatedID: 1, operator: '王五', operateDate: '2025-05-20 08:00:00', remark: '生产领料' }
+  ],
+
+  // 财务模块 - 费用
+  expenses: [
+    {
+      expenseID: 1,
+      expenseNo: 'EX202505200001',
+      applicantID: 3,
+      applicantName: '张三',
+      department: '销售部',
+      amount: 1500.00,
+      category: '差旅费',
+      description: '北京出差三天，拜访客户',
+      status: 'approved',
+      approverID: 2,
+      approverName: '陈立国',
+      approveDate: '2025-05-18',
+      approveRemark: '同意报销',
+      remark: '',
+      createDate: '2025-05-15 10:00:00'
+    },
+    {
+      expenseID: 2,
+      expenseNo: 'EX202505200002',
+      applicantID: 4,
+      applicantName: '李四',
+      department: '采购部',
+      amount: 800.00,
+      category: '招待费',
+      description: '供应商招待费用',
+      status: 'pending',
+      approverID: null,
+      approverName: null,
+      approveDate: null,
+      approveRemark: null,
+      remark: '',
+      createDate: '2025-05-19 14:00:00'
+    },
+    {
+      expenseID: 3,
+      expenseNo: 'EX202505200003',
+      applicantID: 5,
+      applicantName: '王五',
+      department: '生产部',
+      amount: 2000.00,
+      category: '培训费',
+      description: '技术培训课程费用',
+      status: 'rejected',
+      approverID: 2,
+      approverName: '陈立国',
+      approveDate: '2025-05-20',
+      approveRemark: '培训内容与工作无关',
+      remark: '',
+      createDate: '2025-05-17 09:00:00'
+    }
+  ],
+
+  // 生产模块 - 配方
+  recipes: [
+    {
+      recipeID: 1,
+      recipeNo: 'PF202505200001',
+      recipeName: 'A型智能传感器标准配方',
+      productID: 1,
+      productName: 'A型智能传感器',
+      version: 'v1.0',
+      status: 'active',
+      creator: '陈立国',
+      createDate: '2025-05-01 10:00:00',
+      remark: '标准生产配方',
+      items: [
+        { itemID: 1, recipeID: 1, materialID: 1, materialName: 'PCB电路板', quantity: 1, unit: '块', remark: '主电路板' },
+        { itemID: 2, recipeID: 1, materialID: 2, materialName: '集成电路芯片', quantity: 2, unit: '片', remark: '主控芯片' },
+        { itemID: 3, recipeID: 1, materialID: 4, materialName: '塑料外壳', quantity: 1, unit: '个', remark: '产品外壳' },
+        { itemID: 4, recipeID: 1, materialID: 5, materialName: '连接线束', quantity: 1, unit: '套', remark: '内部连接线' }
+      ]
+    },
+    {
+      recipeID: 2,
+      recipeNo: 'PF202505200002',
+      recipeName: 'B型控制模块标准配方',
+      productID: 2,
+      productName: 'B型控制模块',
+      version: 'v1.0',
+      status: 'active',
+      creator: '陈立国',
+      createDate: '2025-05-05 14:00:00',
+      remark: '核心控制模块配方',
+      items: [
+        { itemID: 5, recipeID: 2, materialID: 1, materialName: 'PCB电路板', quantity: 1, unit: '块', remark: '主电路板' },
+        { itemID: 6, recipeID: 2, materialID: 2, materialName: '集成电路芯片', quantity: 5, unit: '片', remark: '主控及周边芯片' },
+        { itemID: 7, recipeID: 2, materialID: 6, materialName: '金属外壳', quantity: 1, unit: '个', remark: '高端产品外壳' }
+      ]
+    },
+    {
+      recipeID: 3,
+      recipeNo: 'PF202505200003',
+      recipeName: 'C型连接配件标准配方',
+      productID: 3,
+      productName: 'C型连接配件',
+      version: 'v1.0',
+      status: 'active',
+      creator: '陈立国',
+      createDate: '2025-05-10 09:00:00',
+      remark: '连接配件配方',
+      items: [
+        { itemID: 8, recipeID: 3, materialID: 3, materialName: '电阻电容包', quantity: 1, unit: '包', remark: '通用被动元件' },
+        { itemID: 9, recipeID: 3, materialID: 7, materialName: '包装材料', quantity: 1, unit: '套', remark: '产品包装' }
+      ]
+    },
+    {
+      recipeID: 4,
+      recipeNo: 'PF202505200004',
+      recipeName: 'D型工业电源标准配方',
+      productID: 4,
+      productName: 'D型工业电源',
+      version: 'v1.0',
+      status: 'active',
+      creator: '陈立国',
+      createDate: '2025-05-08 11:00:00',
+      remark: '工业电源配方',
+      items: [
+        { itemID: 10, recipeID: 4, materialID: 1, materialName: 'PCB电路板', quantity: 1, unit: '块', remark: '电源电路板' },
+        { itemID: 11, recipeID: 4, materialID: 4, materialName: '塑料外壳', quantity: 1, unit: '个', remark: '电源外壳' }
+      ]
+    }
+  ],
+
   receipts: [],
 
   nextIds: {
@@ -656,10 +964,17 @@ export const DEMO_ACCOUNT_DATA = {
     planId: 5,
     receivableID: 4,
     payableID: 4,
-    deliveryID: 2,
-    pickID: 2,
-    transferID: 2,
-    returnID: 1,
-    receiptID: 1
+    deliveryID: 3,
+    pickID: 4,
+    transferID: 4,
+    returnID: 2,
+    receiptID: 1,
+    userId: 6,
+    messageId: 5,
+    logId: 9,
+    configId: 8,
+    expenseId: 4,
+    recipeId: 5,
+    inventoryRecordId: 4
   }
 }
