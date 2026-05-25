@@ -71,11 +71,21 @@ class DataStoreManager {
       const stored = localStorage.getItem(STORAGE_KEY)
       if (stored) {
         const parsed = JSON.parse(stored)
-        this.data = {
-          ...DEFAULT_DATA,
-          ...parsed
+        
+        // 验证数据有效性 - 确保核心数据不为空
+        const hasValidData = this.validateData(parsed)
+        
+        if (hasValidData) {
+          this.data = {
+            ...DEFAULT_DATA,
+            ...parsed
+          }
+          console.log('[DataStore] 已从 localStorage 加载数据')
+        } else {
+          console.log('[DataStore] localStorage 数据无效，使用默认数据')
+          this.data = { ...DEFAULT_DATA }
+          this.saveToStorage()
         }
-        console.log('[DataStore] 已从 localStorage 加载数据')
       } else {
         console.log('[DataStore] 使用默认数据')
       }
@@ -612,9 +622,22 @@ class DataStoreManager {
       'salesOrders', 'purchaseOrders', 'productionPlans',
       'receivables', 'payables'
     ]
-    return requiredFields.every(field => 
+    
+    // 检查所有必填字段是否都存在且是数组
+    const hasAllFields = requiredFields.every(field => 
       data[field] && Array.isArray(data[field])
-    ) && data.nextIds !== undefined
+    )
+    
+    if (!hasAllFields) return false
+    
+    // 检查核心数据是否有内容（至少有一个数据）
+    // 如果客户、产品、销售订单都为空，则认为数据无效
+    const coreFields = ['customers', 'products', 'salesOrders']
+    const hasCoreData = coreFields.some(field => 
+      data[field] && data[field].length > 0
+    )
+    
+    return hasCoreData && data.nextIds !== undefined
   }
 }
 
