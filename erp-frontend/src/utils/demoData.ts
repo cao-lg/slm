@@ -604,44 +604,6 @@ export const DEMO_ACCOUNT_DATA = {
     }
   ],
 
-  warehouseDeliveries: [
-    {
-      deliveryID: 1,
-      deliveryNo: 'FH202505200001',
-      orderID: 3,
-      customerID: 4,
-      customerName: '深圳智能制造',
-      deliveryDate: '2025-05-22',
-      totalAmount: 84000.00,
-      status: 'confirmed',
-      operator: '陈立国'
-    }
-  ],
-
-  warehousePicks: [
-    {
-      pickID: 1,
-      pickNo: 'LL202505200001',
-      planId: 1,
-      pickDate: '2025-05-20',
-      totalAmount: 5000.00,
-      status: 'confirmed',
-      operator: '陈立国'
-    }
-  ],
-
-  warehouseTransfers: [
-    {
-      transferID: 1,
-      transferNo: 'DB202505200001',
-      fromWarehouse: '材料仓',
-      toWarehouse: '车间仓',
-      transferDate: '2025-05-21',
-      status: 'completed',
-      operator: '陈立国'
-    }
-  ],
-
   // 系统管理模块
   users: [
     { id: 1, userName: 'admin', realName: '管理员', role: 'admin', department: '管理部', position: '系统管理员', email: 'admin@example.com', phone: '13800138001', status: 1, createDate: '2024-01-01 00:00:00', lastLoginDate: '2025-05-20 10:30:00' },

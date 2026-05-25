@@ -39,7 +39,7 @@
             <el-descriptions-item label="系统版本">v1.0.0</el-descriptions-item>
             <el-descriptions-item label="当前用户">{{ authStore.userInfo?.realName }}</el-descriptions-item>
             <el-descriptions-item label="用户角色">{{ authStore.userInfo?.role === 'admin' ? '管理员' : '普通用户' }}</el-descriptions-item>
-          </el-descriptions-item>
+          </el-descriptions>
         </el-card>
       </el-col>
     </el-row>
@@ -47,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { useAuthStore from '@/stores/auth'
+import { useAuthStore } from '@/stores/auth'
 import { ref, onMounted } from 'vue'
 import { dataStore } from '@/utils/dataStore'
 import { ShoppingCart, Box, Setting, Bell } from '@element-plus/icons-vue'
